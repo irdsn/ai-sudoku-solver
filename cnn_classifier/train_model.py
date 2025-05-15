@@ -15,6 +15,7 @@ import os
 import json
 from datetime import datetime
 import matplotlib.pyplot as plt
+from utils.logs_config import logger
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
@@ -55,7 +56,7 @@ os.makedirs(output_path, exist_ok=True)
 csv_log_path = os.path.join(output_path, "training_log.csv")
 csv_logger = CSVLogger(csv_log_path, append=False)
 
-print(f"🕒 Training started at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+logger.info(f"🕒 Training started at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
 
 ##################################################################################################
 #                                     DATA PREPARATION                                           #
@@ -89,7 +90,7 @@ val_data = val_gen.flow_from_directory(
 )
 
 num_classes = len(train_data.class_indices)
-print(f"📊 Detected classes: {train_data.class_indices}")
+logger.info(f"📊 Detected classes: {train_data.class_indices}")
 
 ##################################################################################################
 #                                      MODEL DEFINITION                                          #
@@ -176,7 +177,7 @@ plt.grid(True)
 plt.tight_layout()
 plt.savefig(plot_path)
 plt.close()
-print(f"📊 Saved training plot to: {plot_path}")
+logger.info(f"📈 Training accuracy plot saved: {plot_path}")
 
 # Save final metrics as JSON
 metrics = {
@@ -192,6 +193,7 @@ metrics_path = os.path.join(output_path, "metrics.json")
 with open(metrics_path, "w") as f:
     json.dump(metrics, f, indent=4)
 
-print(f"📁 Saved training metrics to: {metrics_path}")
+logger.info(f"📊 Training metrics saved to: {metrics_path}")
 
-print(f"\n🕒 Training completed at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+
+logger.info(f"🕒 Training completed at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")

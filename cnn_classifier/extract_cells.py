@@ -14,9 +14,7 @@
 import os
 import cv2
 import sys
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
+from utils.logs_config import logger
 from vision.board_segmenter import extract_cells_from_image
 
 ##################################################################################################
@@ -25,6 +23,8 @@ from vision.board_segmenter import extract_cells_from_image
 # Define paths for input Sudoku image and output directory where extracted cell images           #
 # will be saved. The output directory is automatically created if it does not exist.             #
 ##################################################################################################
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 # Path to image to segment
 IMAGE_PATH = "../datasets/sudokus/extreme_6.jpg"
@@ -51,15 +51,16 @@ def save_cells_from_image(image_path: str):
 
     os.makedirs(output_path, exist_ok=True)
 
-    print(f"📸 Processing image: {image_path}")
+    logger.info(f"📸 Processing image: {image_path}")
     cells = extract_cells_from_image(image_path)
 
-    print(f"💾 Saving 81 cells to: {output_path}")
+    logger.info(f"💾 Saving 81 extracted cells to: {output_path}")
+
     for idx, cell in enumerate(cells):
         filename = f"{image_name}_cell_{idx:02}.png"
         cv2.imwrite(os.path.join(output_path, filename), cell)
 
-    print("✅ Done! Now label the images manually.")
+    logger.info("✅ Done! Now label the images manually.")
 
 ##################################################################################################
 #                                               MAIN                                             #

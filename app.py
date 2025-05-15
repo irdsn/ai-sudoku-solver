@@ -23,89 +23,24 @@
 
 import sys
 import os
-import tkinter as tk
-from tkinter import filedialog
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), ".")))
-
-from vision.image_parser import extract_board_from_image    # Extracts 9x9 board from image
-from solver.sudoku_solver import SudokuSolver               # Sudoku solver agent
-from utils.reporter import save_solution_report             # Optional: save report as markdown
+import copy
+from vision.image_parser import extract_board_from_image            # Extracts 9x9 board from image
+from solver.bckt_logic_solver import SudokuSolver                   # Sudoku solver - Backtracking logic
+from solver.ai_agent_solver import SudokuSolverAgent                # Sudoku solver - AI Agent
+from utils.logs_config import logger                                # Logs and events
+from utils.reporter import save_solution_report                     # Optional: save report as markdown
+from utils.user_input import prompt_user_for_image                  # GUI-based image selector
+from utils.extracted_board_editor import edit_board_interactively   # Optional board editor
+from utils.extracted_board_editor import print_board                # Print board functionality
 
 ##################################################################################################
 #                                          CONFIGURATION                                         #
 ##################################################################################################
 
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), ".")))
+
 SAVE_REPORT = True                       # Set to True to generate markdown report
-
-##################################################################################################
-#                                USER IMAGE SELECTION FUNCTION                                   #
-#                                                                                                #
-# Prompts the user with a GUI file dialog to select an image file (JPG or PNG).                  #
-# Performs validation on the selected file and exits gracefully if no valid file is provided.    #
-#                                                                                                #
-# Returns:                                                                                       #
-#     str: Full path to the selected Sudoku image file                                           #
-##################################################################################################
-
-def prompt_user_for_image():
-
-    root = tk.Tk()
-    root.withdraw()  # Hide the main window
-
-    file_path = filedialog.askopenfilename(
-        title="Select a Sudoku image",
-        filetypes=[("Image files", "*.jpg *.jpeg *.png")]
-    )
-
-    if not file_path:
-        print("❌ No image selected. Exiting.")
-        sys.exit(1)
-
-    if not os.path.exists(file_path):
-        print(f"❌ File does not exist: {file_path}")
-        sys.exit(1)
-
-    return file_path
-
-##################################################################################################
-#                             INTERACTIVE BOARD EDITING FUNCTION                                 #
-#                                                                                                #
-# Allows the user to modify specific cells in the extracted board before solving.                #
-# Users can input cell coordinates (row,col) and values (1–9) or 0 to clear the cell.            #
-# A live view of the board is printed after each edit to verify changes.                         #
-#                                                                                                #
-# Args:                                                                                          #
-#     board (list[list[int]]): 9x9 Sudoku board extracted from the image                         #
-##################################################################################################
-
-def edit_board_interactively(board):
-
-    while True:
-        choice = input("\n✏️  Do you want to edit any cell? (y/n): ").strip().lower()
-        if choice != 'y':
-            break
-
-        try:
-            coords = input("Enter cell coordinates as row,col (0-based): ")
-            row, col = map(int, coords.split(","))
-
-            if not (0 <= row < 9 and 0 <= col < 9):
-                print("❌ Invalid coordinates. Must be between 0 and 8.")
-                continue
-
-            value = int(input("Enter value (1-9) or 0 to clear: "))
-            if not (0 <= value <= 9):
-                print("❌ Invalid value. Must be between 0 and 9.")
-                continue
-
-            board[row][col] = value
-            print("✅ Cell updated.")
-            agent = SudokuSolver(board)
-            agent.print_board()
-
-        except Exception as e:
-            print(f"❌ Error: {e}. Try again.")
+USE_AGENT = True  # Toggle between backtracking and AI agent
 
 ##################################################################################################
 #                                      MAIN EXECUTION LOGIC                                      #
@@ -120,35 +55,61 @@ def edit_board_interactively(board):
 
 def main():
     IMAGE_PATH = prompt_user_for_image()
-    print(f"📸 Loading Sudoku from: {IMAGE_PATH}")
+    logger.info(f"📸 Loading Sudoku from: {IMAGE_PATH}")
     board = extract_board_from_image(IMAGE_PATH)
 
-    print(f"\n📋 Raw board data: {board}")
-
-    if not board or not isinstance(board, list):
-        print("❌ Failed to extract board from image.")
+    if not isinstance(board, list) or len(board) != 9:
+        logger.error("❌ Failed to extract board from image.")
         return
 
-    print("\n🧩 Extracted Sudoku Board:")
-    agent = SudokuSolver(board)
-    agent.print_board()
+    logger.info("\n🧩 Extracted Sudoku Board:")
+    print_board(board)
 
-    # Optional editing
-    edit_board_interactively(agent.board)
+    ##################################################################################################
+    #                               OPTIONAL USER CORRECTION BEFORE SOLVING                          #
+    ##################################################################################################
+    edit_board_interactively(board)
 
-    print("\n🧠 Solving...")
-    if agent.solve():
-        print("\n✅ Sudoku Solved:")
-        agent.print_board()
+    # Create copies of the user-corrected board
+    logic_board = copy.deepcopy(board)
+    agent_board = copy.deepcopy(board)
 
-        if SAVE_REPORT:
-            save_solution_report(
-                original_board=board,
-                solved_board=agent.board,
-                image_path=IMAGE_PATH
-            )
+    ##################################################################################################
+    #                              SOLVE WITH LOGIC (BACKTRACKING)                                   #
+    ##################################################################################################
+
+    logic_solver = SudokuSolver(logic_board)
+    logger.info("\n🧠 Solving with logic-based solver...")
+    print_board(logic_solver.board)
+
+    logic_success = logic_solver.solve()
+
+    if logic_success:
+        logger.info("\n✅ Logic Solver: Puzzle solved!")
+        print_board(logic_solver.board)
     else:
-        print("❌ Could not solve the Sudoku.")
+        logger.warning("⚠️ Logic Solver could not solve the puzzle.")
+
+    ##################################################################################################
+    #                                 SOLVE WITH AI AGENT (LLM)                                      #
+    ##################################################################################################
+
+    agent_solver = SudokuSolverAgent(agent_board)
+    logger.info("\n🤖 Solving with AI Agent...")
+    print(agent_solver.format_board())
+
+    agent_solver.solve_step_by_step()
+
+    ##################################################################################################
+    #                                    GENERATE MARKDOWN REPORT                                    #
+    ##################################################################################################
+
+    if SAVE_REPORT and logic_success:
+        save_solution_report(
+            original_board=board,
+            solved_board=logic_solver.board,
+            image_path=IMAGE_PATH
+        )
 
 ##################################################################################################
 #                                            ENTRY POINT                                         #

@@ -1,21 +1,30 @@
 ##################################################################################################
 #                                        SCRIPT OVERVIEW                                         #
 #                                                                                                #
-# This module defines a AISudokuSolver class that solves 9x9 Sudoku puzzles using backtracking.    #
+# This module defines a AISudokuSolver class that solves 9x9 Sudoku puzzles using backtracking.  #
 # It provides a method to solve the puzzle and a pretty printer to display it in grid format.    #
 # The board is expected to be a 9x9 list of lists with 0 representing empty cells.               #
 ##################################################################################################
 
 ##################################################################################################
+#                                            IMPORTS                                             #
+##################################################################################################
+
+import time
+from utils.extracted_board_editor import print_board
+from utils.logs_config import logger
+
+##################################################################################################
 #                                            CLASS                                               #
 #                                                                                                #
-# AISudokuSolver encapsulates logic to solve 9x9 Sudoku puzzles using a recursive backtracking     #
+# AISudokuSolver encapsulates logic to solve 9x9 Sudoku puzzles using a recursive backtracking   #
 # algorithm. Empty cells should be represented as 0.                                             #
 #                                                                                                #
 # Core Features:                                                                                 #
 # - Pretty-print the board for visualization.                                                    #
 # - Validate moves for rows, columns, and 3x3 subgrids.                                          #
 # - Solve the puzzle recursively with backtracking.                                              #
+# - Tracks solving steps and execution time (optional).                                          #
 ##################################################################################################
 
 class SudokuSolver:
@@ -30,22 +39,8 @@ class SudokuSolver:
 
     def __init__(self, board):
         self.board = board
-
-    ##################################################################################################
-    #                                        PRINT BOARD                                             #
-    #                                                                                                #
-    # Displays the current board state in a structured and readable format.                          #
-    # Numbers are grouped in 3x3 blocks, and empty cells are shown as dots ('.').                    #
-    ##################################################################################################
-    def print_board(self):
-        for i in range(9):
-            if i % 3 == 0 and i != 0:
-                print("-" * 21)
-            for j in range(9):
-                if j % 3 == 0 and j != 0:
-                    print("|", end=" ")
-                print(self.board[i][j] if self.board[i][j] != 0 else ".", end=" ")
-            print()
+        self.steps = 0  # Number of recursive steps taken during solving
+        self.time_taken = 0  # Total solving time in seconds
 
     ##################################################################################################
     #                                       FIND EMPTY CELL                                          #
@@ -97,7 +92,7 @@ class SudokuSolver:
         return True
 
     ##################################################################################################
-    #                                          SOLVE BOARD                                           #
+    #                                 SOLVE BOARD USING BACKTRACKING                                 #
     #                                                                                                #
     # Attempts to solve the Sudoku puzzle using backtracking.                                        #
     # Fills in values recursively, backtracking if a dead-end is reached.                            #
@@ -105,17 +100,33 @@ class SudokuSolver:
     # Returns:                                                                                       #
     #     bool: True if the board was successfully solved, False if no solution exists.              #
     ##################################################################################################
-    def solve(self):
+
+    def solve(self, verbose=True):
+
+        start = time.perf_counter()
+        solved = self._backtrack()
+        end = time.perf_counter()
+
+        self.time_taken = round(end - start, 4)
+
+        if verbose:
+            logger.info(f"🧠 Steps taken: {self.steps}")
+            logger.info(f"⏱️ Time taken: {self.time_taken:.4f} seconds")
+
+        return solved
+
+    def _backtrack(self):
         find = self.find_empty()
         if not find:
-            return True  # Puzzle solved
+            return True  # Solved
 
         row, col = find
         for num in range(1, 10):
             if self.is_valid(num, (row, col)):
                 self.board[row][col] = num
+                self.steps += 1
 
-                if self.solve():
+                if self._backtrack():
                     return True
 
                 # Backtrack
@@ -130,5 +141,6 @@ class SudokuSolver:
     # Returns:                                                                                       #
     #     list[list[int]]: The 9x9 Sudoku board as a nested list.                                    #
     ##################################################################################################
+
     def get_board(self):
         return self.board

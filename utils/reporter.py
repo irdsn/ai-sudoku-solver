@@ -17,6 +17,7 @@
 
 import os
 from datetime import datetime
+from utils.logs_config import logger
 
 ##################################################################################################
 #                                   REPORT GENERATION FUNCTION                                   #
@@ -80,4 +81,4 @@ def save_solution_report(original_board, solved_board, image_path):
     with open(report_path, "w") as f:
         f.write(content)
 
-    print(f"\n📁 Report saved to: {report_path}")
+    logger.info(f"\n📁 Report saved to: {report_path}")

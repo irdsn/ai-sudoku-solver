@@ -14,6 +14,7 @@
 from typing import List
 from vision.board_segmenter import extract_cells_from_image
 from cnn_classifier.digit_classifier import classify_cell
+from utils.logs_config import logger
 
 ##################################################################################################
 #                                    MAIN FUNCTION INTERFACE                                     #
@@ -46,9 +47,9 @@ def extract_board_from_image(image_path: str) -> List[List[int]]:
         board.append(row_digits)
 
     '''
-    print("🧩 Extracted Sudoku Board:\n")
+    logger.info("🧩 Extracted Sudoku Board:\n")
     for r in board:
-        print(" ".join(str(d) if d != 0 else "." for d in r))
+        logger.info(" ".join(str(d) if d != 0 else "." for d in r))
     '''
     return board
 
