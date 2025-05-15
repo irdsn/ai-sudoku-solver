@@ -11,6 +11,9 @@ __pycache__/
 
 # System files (Mac/Windows)
 .DS_Store
+.AppleDouble
+.LSOverride
+__MACOSX/
 Thumbs.db
 
 # Logs and temp files
@@ -23,6 +26,10 @@ Thumbs.db
 .idea/
 .vscode/
 *.swp
+
+# Temporary editor swap files
+*~
+*.orig
 
 # Local environment variables
 .env
