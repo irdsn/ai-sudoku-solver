@@ -1,37 +1,605 @@
 # Sudoku Solver Report
 
-    **Solved at:**: 2025-05-15 21:34:47
+**Solved at:** 2025-05-16 19:13:17
 
-    ### Input Image
-    ![Sudoku Input](../inputs/medium.jpg)
+## Input Image
 
-    ---
+![Sudoku Input](medium_readme.jpg)
 
-    ### Original Board
+---
 
-    |   | 4 | 9 | 8 |   |   | 2 | 6 | 1 |
-|---|---|---|---|---|---|---|---|---|
-|   |   |   | 7 |   |   |   |   | 4 |
-| 2 | 8 |   |   | 6 |   |   | 3 | 5 |
-| 1 | 9 | 3 | 2 | 7 |   |   |   |   |
-| 8 | 5 | 7 | 9 |   |   | 6 |   |   |
-|   | 2 |   |   | 8 |   |   |   |   |
-|   | 3 | 8 | 1 | 2 |   |   | 5 |   |
-| 5 |   | 6 |   | 4 | 8 |   |   |   |
-|   | 7 | 2 | 6 | 9 | 5 | 1 | 8 |   |
+## Parsed Board (Extracted from Image)
 
-    ---
+|   | 4 | 9 | ll | 8 |   |   | ll | 2 | 6 | 1 |
+|---|---|---|---|---|---|---|---|---|---|---|
+|   |   |   | ll | 7 |   |   | ll |   |   | 4 |
+| 2 | 8 |   | ll |   | 6 |   | ll |   | 3 | 5 |
+| = | = | = | + | = | = | = | + | = | = | = |
+| 1 | 9 | 3 | ll | 2 | 7 |   | ll |   |   |   |
+| 8 | 5 | 7 | ll | 9 |   |   | ll | 6 |   |   |
+|   | 2 |   | ll |   | 8 |   | ll |   |   |   |
+| = | = | = | + | = | = | = | + | = | = | = |
+|   | 3 | 8 | ll | 1 | 2 |   | ll |   | 5 |   |
+| 5 |   | 6 | ll |   | 4 | 8 | ll |   |   |   |
+|   | 7 | 2 | ll | 6 | 9 | 5 | ll | 1 | 8 |   |
 
-    ### Solved Board
+---
 
-    | 7 | 4 | 9 | 8 | 5 | 3 | 2 | 6 | 1 |
-|---|---|---|---|---|---|---|---|---|
-| 3 | 6 | 5 | 7 | 1 | 2 | 8 | 9 | 4 |
-| 2 | 8 | 1 | 4 | 6 | 9 | 7 | 3 | 5 |
-| 1 | 9 | 3 | 2 | 7 | 6 | 5 | 4 | 8 |
-| 8 | 5 | 7 | 9 | 3 | 4 | 6 | 1 | 2 |
-| 6 | 2 | 4 | 5 | 8 | 1 | 3 | 7 | 9 |
-| 9 | 3 | 8 | 1 | 2 | 7 | 4 | 5 | 6 |
-| 5 | 1 | 6 | 3 | 4 | 8 | 9 | 2 | 7 |
-| 4 | 7 | 2 | 6 | 9 | 5 | 1 | 8 | 3 |
-    
+## Edited Board (User Corrections Applied) (Edited)
+
+|   | 4 | 9 | ll | 8 |   |   | ll | 2 | 6 | 1 |
+|---|---|---|---|---|---|---|---|---|---|---|
+|   |   |   | ll | 7 |   |   | ll |   |   | 4 |
+| 2 | 8 |   | ll |   | 6 |   | ll |   | 3 | 5 |
+| = | = | = | + | = | = | = | + | = | = | = |
+| 1 | 9 | 3 | ll | 2 | 7 |   | ll |   |   |   |
+| 8 | 5 | 7 | ll | 9 |   |   | ll | 6 |   |   |
+|   | 2 |   | ll |   | 8 |   | ll |   |   |   |
+| = | = | = | + | = | = | = | + | = | = | = |
+|   | 3 | 8 | ll | 1 | 2 |   | ll |   | 5 |   |
+| 5 |   | 6 | ll |   | 4 | 8 | ll |   |   | 7 |
+|   | 7 | 2 | ll | 6 | 9 | 5 | ll | 1 | 8 |   |
+
+---
+
+## Final Solved Board
+
+| 7 | 4 | 9 | ll | 8 | 5 | 3 | ll | 2 | 6 | 1 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 3 | 6 | 5 | ll | 7 | 1 | 2 | ll | 8 | 9 | 4 |
+| 2 | 8 | 1 | ll | 4 | 6 | 9 | ll | 7 | 3 | 5 |
+| = | = | = | + | = | = | = | + | = | = | = |
+| 1 | 9 | 3 | ll | 2 | 7 | 6 | ll | 5 | 4 | 8 |
+| 8 | 5 | 7 | ll | 9 | 3 | 4 | ll | 6 | 1 | 2 |
+| 6 | 2 | 4 | ll | 5 | 8 | 1 | ll | 3 | 7 | 9 |
+| = | = | = | + | = | = | = | + | = | = | = |
+| 9 | 3 | 8 | ll | 1 | 2 | 7 | ll | 4 | 5 | 6 |
+| 5 | 1 | 6 | ll | 3 | 4 | 8 | ll | 9 | 2 | 7 |
+| 4 | 7 | 2 | ll | 6 | 9 | 5 | ll | 1 | 8 | 3 |
+
+---
+
+## Comparative Performance Table
+
+| Method       | Solved | Steps | Time (s) |
+|--------------|--------|-------|----------|
+| Backtracking | Yes | 57 | 0.0009 |
+| AI Agent     | No | 3 | 50.0227 |
+---
+
+## Full Console Log
+
+```bash
+INFO - 📸 Loading Sudoku from: /Users/inigo/Repositorios/AISudokuSolver/inputs/medium.jpg
+
+INFO - 
+
+🧩 Extracted Sudoku Board:
+
+. 4 9 | 8 . . | 2 6 1 
+
+. . . | 7 . . | . . 4 
+
+2 8 . | . 6 . | . 3 5 
+
+---------------------
+
+1 9 3 | 2 7 . | . . . 
+
+8 5 7 | 9 . . | 6 . . 
+
+. 2 . | . 8 . | . . . 
+
+---------------------
+
+. 3 8 | 1 2 . | . 5 . 
+
+5 . 6 | . 4 8 | . . . 
+
+. 7 2 | 6 9 5 | 1 8 . 
+
+
+
+✏️  Do you want to edit any cell? (y/n): Enter cell coordinates to edit (format: row,col — example: 0,6): Enter digit to assign (1–9), or 0 to clear the cell: INFO - ✅ Cell updated successfully.
+
+. 4 9 | 8 . . | 2 6 1 
+
+. . . | 7 . . | . . 4 
+
+2 8 . | . 6 . | . 3 5 
+
+---------------------
+
+1 9 3 | 2 7 . | . . . 
+
+8 5 7 | 9 . . | 6 . . 
+
+. 2 . | . 8 . | . . . 
+
+---------------------
+
+. 3 8 | 1 2 . | . 5 . 
+
+5 . 6 | . 4 8 | . . 7 
+
+. 7 2 | 6 9 5 | 1 8 . 
+
+
+
+✏️  Do you want to edit any cell? (y/n): INFO - 
+
+🧠 Solving with logic-based solver...
+
+. 4 9 | 8 . . | 2 6 1 
+
+. . . | 7 . . | . . 4 
+
+2 8 . | . 6 . | . 3 5 
+
+---------------------
+
+1 9 3 | 2 7 . | . . . 
+
+8 5 7 | 9 . . | 6 . . 
+
+. 2 . | . 8 . | . . . 
+
+---------------------
+
+. 3 8 | 1 2 . | . 5 . 
+
+5 . 6 | . 4 8 | . . 7 
+
+. 7 2 | 6 9 5 | 1 8 . 
+
+INFO - 🧠 Steps taken: 57
+
+INFO - ⏱️ Time taken: 0.0009 seconds
+
+INFO - 
+
+✅ Logic Solver: Puzzle solved!
+
+7 4 9 | 8 5 3 | 2 6 1 
+
+3 6 5 | 7 1 2 | 8 9 4 
+
+2 8 1 | 4 6 9 | 7 3 5 
+
+---------------------
+
+1 9 3 | 2 7 6 | 5 4 8 
+
+8 5 7 | 9 3 4 | 6 1 2 
+
+6 2 4 | 5 8 1 | 3 7 9 
+
+---------------------
+
+9 3 8 | 1 2 7 | 4 5 6 
+
+5 1 6 | 3 4 8 | 9 2 7 
+
+4 7 2 | 6 9 5 | 1 8 3 
+
+/Users/inigo/Repositorios/AISudokuSolver/solver/ai_agent_solver.py:36: LangChainDeprecationWarning: The class `ChatOpenAI` was deprecated in LangChain 0.0.10 and will be removed in 1.0. An updated version of the class exists in the :class:`~langchain-openai package and should be used instead. To use it run `pip install -U :class:`~langchain-openai` and import as `from :class:`~langchain_openai import ChatOpenAI``.
+
+  self.llm = ChatOpenAI(model=model, temperature=temperature)
+
+/Users/inigo/Repositorios/AISudokuSolver/solver/ai_agent_solver.py:50: LangChainDeprecationWarning: LangChain agents will continue to be supported, but it is recommended for new use cases to be built with LangGraph. LangGraph offers a more flexible and full-featured framework for building agents, including support for tool-calling, persistence of state, and human-in-the-loop workflows. For details, refer to the `LangGraph documentation <https://langchain-ai.github.io/langgraph/>`_ as well as guides for `Migrating from AgentExecutor <https://python.langchain.com/docs/how_to/migrate_agent/>`_ and LangGraph's `Pre-built ReAct agent <https://langchain-ai.github.io/langgraph/how-tos/create-react-agent/>`_.
+
+  self.agent = initialize_agent(
+
+INFO - 
+
+🤖 Solving with AI Agent...
+
+. 4 9 8 . . 2 6 1
+
+. . . 7 . . . . 4
+
+2 8 . . 6 . . 3 5
+
+1 9 3 2 7 . . . .
+
+8 5 7 9 . . 6 . .
+
+. 2 . . 8 . . . .
+
+. 3 8 1 2 . . 5 .
+
+5 . 6 . 4 8 . . 7
+
+. 7 2 6 9 5 1 8 .
+
+INFO - 
+
+🤖 Starting agent-driven solving...
+
+
+
+/Users/inigo/Repositorios/AISudokuSolver/solver/ai_agent_solver.py:85: LangChainDeprecationWarning: The method `Chain.run` was deprecated in langchain 0.1.0 and will be removed in 1.0. Use :meth:`~invoke` instead.
+
+  self.agent.run(instruction)
+
+
+
+
+
+[1m> Entering new AgentExecutor chain...[0m
+
+[32;1m[1;3mI need to first view the current state of the Sudoku board to assess which moves are possible.
+
+
+
+Action: ShowBoard
+
+Action Input: _[0m
+
+Observation: [36;1m[1;3m. 4 9 8 . . 2 6 1
+
+. . . 7 . . . . 4
+
+2 8 . . 6 . . 3 5
+
+1 9 3 2 7 . . . .
+
+8 5 7 9 . . 6 . .
+
+. 2 . . 8 . . . .
+
+. 3 8 1 2 . . 5 .
+
+5 . 6 . 4 8 . . 7
+
+. 7 2 6 9 5 1 8 .[0m
+
+Thought:[32;1m[1;3mI need to analyze the board to find cells where only one possible number can be placed. I'll start by looking for rows, columns, or blocks with a high number of filled cells.
+
+
+
+Thought: The first row has two empty cells at positions 5 and 6. I need to determine what numbers are missing in this row.
+
+
+
+Action: ShowBoard
+
+Action Input: _[0m
+
+Observation: [36;1m[1;3m. 4 9 8 . . 2 6 1
+
+. . . 7 . . . . 4
+
+2 8 . . 6 . . 3 5
+
+1 9 3 2 7 . . . .
+
+8 5 7 9 . . 6 . .
+
+. 2 . . 8 . . . .
+
+. 3 8 1 2 . . 5 .
+
+5 . 6 . 4 8 . . 7
+
+. 7 2 6 9 5 1 8 .[0m
+
+Thought:[32;1m[1;3mThe missing numbers in the first row are 3 and 5. I need to check if these numbers can be placed in the empty cells without violating Sudoku rules.
+
+
+
+Thought: I will check the columns and 3x3 blocks corresponding to the empty cells in the first row to see if there is only one possible place for either 3 or 5.
+
+
+
+Action: ShowBoard
+
+Action Input: _[0m
+
+Observation: [36;1m[1;3m. 4 9 8 . . 2 6 1
+
+. . . 7 . . . . 4
+
+2 8 . . 6 . . 3 5
+
+1 9 3 2 7 . . . .
+
+8 5 7 9 . . 6 . .
+
+. 2 . . 8 . . . .
+
+. 3 8 1 2 . . 5 .
+
+5 . 6 . 4 8 . . 7
+
+. 7 2 6 9 5 1 8 .[0m
+
+Thought:[32;1m[1;3mThe fifth column in the first row is empty and needs a number. The numbers in the fifth column across all rows are 7, 8, 6, 7, 9, 8, 2, 4, 9. The missing numbers are 1, 3, and 5. Since 3 and 5 are the missing numbers in the first row, and 1 is not missing in the row, I can place either 3 or 5 in the fifth column of the first row.
+
+
+
+Thought: I will now check the 3x3 block that includes the first row and fifth column to determine if only one of 3 or 5 can be placed there.
+
+
+
+Action: ShowBoard
+
+Action Input: _[0m
+
+Observation: [36;1m[1;3m. 4 9 8 . . 2 6 1
+
+. . . 7 . . . . 4
+
+2 8 . . 6 . . 3 5
+
+1 9 3 2 7 . . . .
+
+8 5 7 9 . . 6 . .
+
+. 2 . . 8 . . . .
+
+. 3 8 1 2 . . 5 .
+
+5 . 6 . 4 8 . . 7
+
+. 7 2 6 9 5 1 8 .[0m
+
+Thought:[32;1m[1;3mThe 3x3 block for the first row and fifth column includes numbers 4, 9, 8, 7, and 6 from the first two rows. The missing numbers in this block are 1, 2, 3, and 5. Since both 3 and 5 are possible in the fifth column of the first row, I need to check the sixth column to see if placing one of these numbers there can help determine the placement in the fifth column.
+
+
+
+Action: ShowBoard
+
+Action Input: _[0m
+
+Observation: [36;1m[1;3m. 4 9 8 . . 2 6 1
+
+. . . 7 . . . . 4
+
+2 8 . . 6 . . 3 5
+
+1 9 3 2 7 . . . .
+
+8 5 7 9 . . 6 . .
+
+. 2 . . 8 . . . .
+
+. 3 8 1 2 . . 5 .
+
+5 . 6 . 4 8 . . 7
+
+. 7 2 6 9 5 1 8 .[0m
+
+Thought:[32;1m[1;3mThe sixth column in the first row is also empty and needs a number. The numbers in the sixth column across all rows are 2, 8, 6, 7, 9, 8, 2, 4, 5. The missing numbers are 1 and 3. Since 3 is missing in the sixth column and is also a missing number in the first row, I can place 3 in the sixth column of the first row.
+
+
+
+Action: PlaceValue
+
+Action Input: 1,6,3[0m
+
+Observation: [33;1m[1;3m✅ Placed 3 at (1,6)[0m
+
+Thought:[32;1m[1;3mNow that I have placed 3 in the sixth column of the first row, I need to place the remaining missing number, which is 5, in the fifth column of the first row.
+
+
+
+Action: PlaceValue
+
+Action Input: 1,5,5[0m
+
+Observation: [33;1m[1;3m✅ Placed 5 at (1,5)[0m
+
+Thought:[32;1m[1;3mI have successfully placed the numbers 3 and 5 in the first row. I should continue solving the puzzle by finding other cells where only one possible number can be placed.
+
+
+
+Action: ShowBoard
+
+Action Input: _[0m
+
+Observation: [36;1m[1;3m. 4 9 8 . . 2 6 1
+
+. . . 7 . 5 3 . 4
+
+2 8 . . 6 . . 3 5
+
+1 9 3 2 7 . . . .
+
+8 5 7 9 . . 6 . .
+
+. 2 . . 8 . . . .
+
+. 3 8 1 2 . . 5 .
+
+5 . 6 . 4 8 . . 7
+
+. 7 2 6 9 5 1 8 .[0m
+
+Thought:[32;1m[1;3mI will continue analyzing the board to find other cells where only one possible number can be placed. I'll focus next on the second row, which has several empty cells.
+
+
+
+Action: ShowBoard
+
+Action Input: _[0m
+
+Observation: [36;1m[1;3m. 4 9 8 . . 2 6 1
+
+. . . 7 . 5 3 . 4
+
+2 8 . . 6 . . 3 5
+
+1 9 3 2 7 . . . .
+
+8 5 7 9 . . 6 . .
+
+. 2 . . 8 . . . .
+
+. 3 8 1 2 . . 5 .
+
+5 . 6 . 4 8 . . 7
+
+. 7 2 6 9 5 1 8 .[0m
+
+Thought:[32;1m[1;3mThe second row has empty cells at positions 1, 2, 3, 5, 7, and 9. I need to determine what numbers are missing in this row.
+
+
+
+Action: ShowBoard
+
+Action Input: _[0m
+
+Observation: [36;1m[1;3m. 4 9 8 . . 2 6 1
+
+. . . 7 . 5 3 . 4
+
+2 8 . . 6 . . 3 5
+
+1 9 3 2 7 . . . .
+
+8 5 7 9 . . 6 . .
+
+. 2 . . 8 . . . .
+
+. 3 8 1 2 . . 5 .
+
+5 . 6 . 4 8 . . 7
+
+. 7 2 6 9 5 1 8 .[0m
+
+Thought:[32;1m[1;3mThe missing numbers in the second row are 1, 2, 6, 8, and 9. I need to check if these numbers can be placed in the empty cells without violating Sudoku rules.
+
+
+
+Thought: I will check the columns and 3x3 blocks corresponding to the empty cells in the second row to see if there is only one possible place for any of these missing numbers.
+
+
+
+Action: ShowBoard
+
+Action Input: _[0m
+
+Observation: [36;1m[1;3m. 4 9 8 . . 2 6 1
+
+. . . 7 . 5 3 . 4
+
+2 8 . . 6 . . 3 5
+
+1 9 3 2 7 . . . .
+
+8 5 7 9 . . 6 . .
+
+. 2 . . 8 . . . .
+
+. 3 8 1 2 . . 5 .
+
+5 . 6 . 4 8 . . 7
+
+. 7 2 6 9 5 1 8 .[0m
+
+Thought:[32;1m[1;3mThe first column in the second row is empty and needs a number. The numbers in the first column across all rows are 2, 1, 8, 5, and 7. The missing numbers are 3, 4, 6, and 9. Since 6 and 9 are missing in the second row, I need to check if one of these can be placed in the first column of the second row.
+
+
+
+Thought: I will now check the 3x3 block that includes the second row and first column to determine if only one of 6 or 9 can be placed there.
+
+
+
+Action: ShowBoard
+
+Action Input: _[0m
+
+Observation: [36;1m[1;3m. 4 9 8 . . 2 6 1
+
+. . . 7 . 5 3 . 4
+
+2 8 . . 6 . . 3 5
+
+1 9 3 2 7 . . . .
+
+8 5 7 9 . . 6 . .
+
+. 2 . . 8 . . . .
+
+. 3 8 1 2 . . 5 .
+
+5 . 6 . 4 8 . . 7
+
+. 7 2 6 9 5 1 8 .[0m
+
+Thought:[32;1m[1;3mThe 3x3 block for the second row and first column includes numbers 4, 9, 8, 7, 5, 3, 2, 8, and 6 from the first three rows. The missing numbers in this block are 1. Since 6 and 9 are both missing in the second row and 1 is not missing in the row, I can place 6 in the first column of the second row, as 9 is already present in the third row of this block.
+
+
+
+Action: PlaceValue
+
+Action Input: 2,1,6[0m
+
+Observation: [33;1m[1;3m✅ Placed 6 at (2,1)[0m
+
+Thought:[32;1m[1;3mNow that I have placed 6 in the first column of the second row, I need to continue solving the puzzle by finding other cells where only one possible number can be placed. I will focus next on the remaining empty cells in the second row.
+
+
+
+Action: ShowBoard
+
+Action Input: _[0m
+
+Observation: [36;1m[1;3m. 4 9 8 . . 2 6 1
+
+. . . 7 . 5 3 . 4
+
+2 6 . . 6 . . 3 5
+
+1 9 3 2 7 . . . .
+
+8 5 7 9 . . 6 . .
+
+. 2 . . 8 . . . .
+
+. 3 8 1 2 . . 5 .
+
+5 . 6 . 4 8 . . 7
+
+. 7 2 6 9 5 1 8 .[0m
+
+Thought:[32;1m[1;3mI will continue analyzing the board to find other cells where only one possible number can be placed. I'll focus next on the remaining empty cells in the second row.
+
+
+
+Action: ShowBoard
+
+Action Input: _[0m
+
+Observation: [36;1m[1;3m. 4 9 8 . . 2 6 1
+
+. . . 7 . 5 3 . 4
+
+2 6 . . 6 . . 3 5
+
+1 9 3 2 7 . . . .
+
+8 5 7 9 . . 6 . .
+
+. 2 . . 8 . . . .
+
+. 3 8 1 2 . . 5 .
+
+5 . 6 . 4 8 . . 7
+
+. 7 2 6 9 5 1 8 .[0m
+
+Thought:[32;1m[1;3m[0m
+
+
+
+[1m> Finished chain.[0m
+
+INFO - 
+
+✅ Agent finished after 3 steps.
+
+INFO - ⏱️ Time taken: 50.0227 seconds
+
+```

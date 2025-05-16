@@ -11,6 +11,7 @@
 ##################################################################################################
 
 import os
+import time
 from typing import List
 from dotenv import load_dotenv
 from utils.logs_config import logger
@@ -24,7 +25,7 @@ from langchain_community.chat_models import ChatOpenAI
 
 class SudokuSolverAgent:
 
-    def __init__(self, board: List[List[int]], model: str = "gpt-4", temperature: float = 0):
+    def __init__(self, board: List[List[int]], model: str = "gpt-4-turbo", temperature: float = 0):
         load_dotenv()
         if not os.getenv("OPENAI_API_KEY"):
             raise EnvironmentError("❌ OPENAI_API_KEY not found in .env file.")
@@ -80,6 +81,14 @@ class SudokuSolverAgent:
         Print only your thoughts and tools usage as you go.
         """
 
+        start = time.perf_counter()
         self.agent.run(instruction)
+        end = time.perf_counter()
 
+        self.time_taken = round(end - start, 4)
         logger.info(f"\n✅ Agent finished after {self.steps} steps.")
+        logger.info(f"⏱️ Time taken: {self.time_taken:.4f} seconds")
+
+    def is_solved(self) -> bool:
+        return all(all(cell != 0 for cell in row) for row in self.board)
+

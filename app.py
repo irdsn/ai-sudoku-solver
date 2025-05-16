@@ -9,7 +9,7 @@
 #   3. Segments the board into 81 individual cells and classifies each using a trained CNN.      #
 #   4. Reconstructs the 9x9 board with digits and blank cells.                                   #
 #   5. Displays the detected board to the user, offering manual correction if needed.            #
-#   6. Solves the puzzle using a classic backtracking algorithm.                                 #
+#   6. Solves the puzzle using both classic backtracking algorithm and AI Agent.                 #
 #   7. Optionally generates a Markdown report with both the original and solved board.           #
 #                                                                                                #
 # Output:                                                                                        #
@@ -23,15 +23,18 @@
 
 import sys
 import os
+import io
 import copy
+import logging
 from vision.image_parser import extract_board_from_image            # Extracts 9x9 board from image
 from solver.bckt_logic_solver import SudokuSolver                   # Sudoku solver - Backtracking logic
 from solver.ai_agent_solver import SudokuSolverAgent                # Sudoku solver - AI Agent
 from utils.logs_config import logger                                # Logs and events
-from utils.reporter import save_solution_report                     # Optional: save report as markdown
+from utils.reporter import save_solution_report                     # save report as markdown
 from utils.user_input import prompt_user_for_image                  # GUI-based image selector
 from utils.extracted_board_editor import edit_board_interactively   # Optional board editor
 from utils.extracted_board_editor import print_board                # Print board functionality
+
 
 ##################################################################################################
 #                                          CONFIGURATION                                         #
@@ -39,8 +42,31 @@ from utils.extracted_board_editor import print_board                # Print boar
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), ".")))
 
-SAVE_REPORT = True                       # Set to True to generate markdown report
-USE_AGENT = True  # Toggle between backtracking and AI agent
+SAVE_REPORT = True  # Set to True to generate markdown report
+USE_AGENT = True    # Toggle between backtracking and AI agent
+
+##################################################################################################
+#                                     DUAL OUTPUT STREAM WRAPPER                                 #
+#                                                                                                #
+# This utility class redirects output to multiple streams simultaneously.                        #
+# It is used to mirror `stdout` and `stderr` to both the terminal and an in-memory buffer,       #
+# allowing real-time console display while also capturing the entire execution log for reporting.#
+#                                                                                                #
+# Useful for generating full reproducible logs inside the Markdown report.                       #
+##################################################################################################
+
+class DualOutput:
+    def __init__(self, *outputs):
+        self.outputs = outputs
+
+    def write(self, message):
+        for out in self.outputs:
+            out.write(message)
+            out.flush()
+
+    def flush(self):
+        for out in self.outputs:
+            out.flush()
 
 ##################################################################################################
 #                                      MAIN EXECUTION LOGIC                                      #
@@ -50,29 +76,45 @@ USE_AGENT = True  # Toggle between backtracking and AI agent
 # 2. Extracts a 9x9 grid of digits using CNN-based OCR                                           #
 # 3. Optionally allows the user to modify detected values                                        #
 # 4. Solves the puzzle with backtracking                                                         #
-# 5. Optionally generates a Markdown report of the solution                                      #
+# 5. Generates a Markdown report of the solution                                                 #
 ##################################################################################################
 
 def main():
     IMAGE_PATH = prompt_user_for_image()
-    logger.info(f"📸 Loading Sudoku from: {IMAGE_PATH}")
-    board = extract_board_from_image(IMAGE_PATH)
 
-    if not isinstance(board, list) or len(board) != 9:
+    # Prepare in-memory capture of stdout/stderr
+    log_capture = io.StringIO()
+    sys.stdout = DualOutput(sys.__stdout__, log_capture)
+    sys.stderr = DualOutput(sys.__stderr__, log_capture)
+
+    capture_handler = logging.StreamHandler(log_capture)
+    capture_handler.setLevel(logging.DEBUG)
+    capture_handler.setFormatter(logging.Formatter("%(levelname)s - %(message)s"))
+
+    # Add temporary handler to the logger
+    logger.addHandler(capture_handler)
+
+    logger.info(f"📸 Loading Sudoku from: {IMAGE_PATH}")
+    parsed_board = extract_board_from_image(IMAGE_PATH)
+
+    if not isinstance(parsed_board, list) or len(parsed_board) != 9:
         logger.error("❌ Failed to extract board from image.")
         return
 
     logger.info("\n🧩 Extracted Sudoku Board:")
-    print_board(board)
+    print_board(parsed_board)
 
     ##################################################################################################
     #                               OPTIONAL USER CORRECTION BEFORE SOLVING                          #
     ##################################################################################################
-    edit_board_interactively(board)
+
+    input_board = copy.deepcopy(parsed_board)
+    edit_board_interactively(parsed_board)
+    edited_board = parsed_board
 
     # Create copies of the user-corrected board
-    logic_board = copy.deepcopy(board)
-    agent_board = copy.deepcopy(board)
+    logic_board = copy.deepcopy(edited_board)
+    agent_board = copy.deepcopy(edited_board)
 
     ##################################################################################################
     #                              SOLVE WITH LOGIC (BACKTRACKING)                                   #
@@ -90,6 +132,13 @@ def main():
     else:
         logger.warning("⚠️ Logic Solver could not solve the puzzle.")
 
+    bckt_metrics = {
+        "method": "Backtracking",
+        "solved": logic_success,
+        "steps": logic_solver.steps,
+        "duration": logic_solver.time_taken
+    }
+
     ##################################################################################################
     #                                 SOLVE WITH AI AGENT (LLM)                                      #
     ##################################################################################################
@@ -100,16 +149,36 @@ def main():
 
     agent_solver.solve_step_by_step()
 
+    ai_metrics = {
+        "method": "AI Agent",
+        "solved": agent_solver.is_solved(),
+        "steps": agent_solver.steps,
+        "duration": agent_solver.time_taken
+    }
     ##################################################################################################
     #                                    GENERATE MARKDOWN REPORT                                    #
     ##################################################################################################
 
+    # Restore and save captured console output to file
+    sys.stdout = sys.__stdout__
+    sys.stderr = sys.__stderr__
+
+    console_log_path = os.path.join("outputs", f"{os.path.splitext(os.path.basename(IMAGE_PATH))[0]}_console.log")
+    with open(console_log_path, "w") as f:
+        f.write(log_capture.getvalue())
+
     if SAVE_REPORT and logic_success:
         save_solution_report(
-            original_board=board,
+            input_board=input_board,
+            parsed_board=input_board,
+            edited_board=edited_board,
             solved_board=logic_solver.board,
+            bckt_metrics=bckt_metrics,
+            ai_metrics=ai_metrics,
             image_path=IMAGE_PATH
         )
+
+    logger.removeHandler(capture_handler)
 
 ##################################################################################################
 #                                            ENTRY POINT                                         #

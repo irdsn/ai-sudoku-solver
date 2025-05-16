@@ -37,6 +37,7 @@ kiwisolver==1.4.8
 langchain==0.3.25
 langchain-community==0.3.24
 langchain-core==0.3.60
+langchain-openai==0.3.17
 langchain-text-splitters==0.3.8
 langsmith==0.3.42
 libclang==18.1.1
@@ -73,6 +74,7 @@ python-dateutil==2.9.0.post0
 python-dotenv==1.1.0
 pytz==2025.2
 PyYAML==6.0.2
+regex==2024.11.6
 requests==2.32.3
 requests-toolbelt==1.0.0
 rich==14.0.0
@@ -88,6 +90,7 @@ tensorflow==2.16.2
 tensorflow-io-gcs-filesystem==0.37.1
 termcolor==3.1.0
 threadpoolctl==3.6.0
+tiktoken==0.9.0
 tqdm==4.67.1
 typing-inspect==0.9.0
 typing-inspection==0.4.0
