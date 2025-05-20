@@ -17,7 +17,6 @@ __MACOSX/
 Thumbs.db
 
 # Logs and temp files
-*.log
 *.out
 *.bak
 *.tmp
