@@ -52,49 +52,6 @@ def save_solution_report(input_board, parsed_board, edited_board, solved_board, 
     local_img_path = os.path.join("outputs", image_filename)
     shutil.copy(image_path, local_img_path)
 
-    '''
-    def format_board_table(board):
-        rows = []
-        for i, row in enumerate(board):
-            if i > 0 and i % 3 == 0:
-                rows.append("|   |   |   |   |   |   |   |   |   |   |   |   |")
-            formatted_row = []
-            for j, val in enumerate(row):
-                if j > 0 and j % 3 == 0:
-                    formatted_row.append(" ")
-                formatted_row.append(str(val) if val != 0 else " ")
-            row_line = "| " + " | ".join(formatted_row) + " |"
-            rows.append(row_line)
-        header = rows[0]
-        num_cols = header.count('|') - 1
-        separator = "|" + "---|" * num_cols
-        return "\n".join([header, separator] + rows[1:])
-
-    
-    def format_board_table(board):
-        rows = []
-        for i, row in enumerate(board):
-            formatted_row = []
-            for j, val in enumerate(row):
-                if j > 0 and j % 3 == 0:
-                    formatted_row.append("|")
-                formatted_row.append(str(val) if val != 0 else " ")
-            row_line = "| " + " | ".join(formatted_row) + " |"
-            rows.append(row_line)
-            if (i + 1) % 3 == 0 and i != 8:
-                sep_row = []
-                for j in range(len(formatted_row)):
-                    if (j + 1) % 4 == 0:
-                        sep_row.append("+")
-                    else:
-                        sep_row.append("-")
-                rows.append("| " + " | ".join(sep_row) + " |")
-
-        header = rows[0]
-        num_cols = header.count('|') - 1
-        separator = "|" + "---|" * num_cols
-        return "\n".join([header, separator] + rows[1:])
-    '''
     def format_board_table(board):
         rows = []
         for i, row in enumerate(board):
