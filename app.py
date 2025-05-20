@@ -153,8 +153,13 @@ def main():
         "method": "AI Agent",
         "solved": agent_solver.is_solved(),
         "steps": agent_solver.steps,
-        "duration": agent_solver.time_taken
+        "duration": agent_solver.time_taken,
+        "final_board": agent_solver.board
     }
+
+    logger.info("\n🧾 Final board by AI Agent:\n")
+    print_board(agent_solver.board)
+
     ##################################################################################################
     #                                    GENERATE MARKDOWN REPORT                                    #
     ##################################################################################################
