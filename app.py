@@ -28,7 +28,6 @@ import copy
 import logging
 from vision.image_parser import extract_board_from_image            # Extracts 9x9 board from image
 from solver.bckt_logic_solver import SudokuSolver                   # Sudoku solver - Backtracking logic
-from solver.ai_agent_solver import SudokuSolverAgent                # Sudoku solver - AI Agent
 from utils.logs_config import logger                                # Logs and events
 from utils.reporter import save_solution_report                     # save report as markdown
 from utils.user_input import prompt_user_for_image                  # GUI-based image selector
@@ -43,7 +42,6 @@ from utils.extracted_board_editor import print_board                # Print boar
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), ".")))
 
 SAVE_REPORT = True  # Set to True to generate markdown report
-USE_AGENT = True    # Toggle between backtracking and AI agent
 
 ##################################################################################################
 #                                     DUAL OUTPUT STREAM WRAPPER                                 #
@@ -114,7 +112,6 @@ def main():
 
     # Create copies of the user-corrected board
     logic_board = copy.deepcopy(edited_board)
-    agent_board = copy.deepcopy(edited_board)
 
     ##################################################################################################
     #                              SOLVE WITH LOGIC (BACKTRACKING)                                   #
@@ -140,27 +137,6 @@ def main():
     }
 
     ##################################################################################################
-    #                                 SOLVE WITH AI AGENT (LLM)                                      #
-    ##################################################################################################
-
-    agent_solver = SudokuSolverAgent(agent_board)
-    logger.info("\n🤖 Solving with AI Agent...")
-    print(agent_solver.format_board())
-
-    agent_solver.solve_step_by_step()
-
-    ai_metrics = {
-        "method": "AI Agent",
-        "solved": agent_solver.is_solved(),
-        "steps": agent_solver.steps,
-        "duration": agent_solver.time_taken,
-        "final_board": agent_solver.board
-    }
-
-    logger.info("\n🧾 Final board by AI Agent:\n")
-    print_board(agent_solver.board)
-
-    ##################################################################################################
     #                                    GENERATE MARKDOWN REPORT                                    #
     ##################################################################################################
 
@@ -179,7 +155,6 @@ def main():
             edited_board=edited_board,
             solved_board=logic_solver.board,
             bckt_metrics=bckt_metrics,
-            ai_metrics=ai_metrics,
             image_path=IMAGE_PATH
         )
 

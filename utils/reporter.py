@@ -38,7 +38,7 @@ from utils.logs_config import logger
 #     image_path (str): Path to the original input image.                                        #
 ##################################################################################################
 
-def save_solution_report(input_board, parsed_board, edited_board, solved_board, bckt_metrics, ai_metrics, image_path):
+def save_solution_report(input_board, parsed_board, edited_board, solved_board, bckt_metrics, image_path):
 
     os.makedirs("outputs", exist_ok=True)
 
@@ -100,7 +100,7 @@ def save_solution_report(input_board, parsed_board, edited_board, solved_board, 
     lines.append(format_board_table(parsed_board) + "\n")
     lines.append("---\n")
 
-    lines.append(f"## Edited Board (User Corrections Applied){' (Edited)' if edited else ' (No Edits)'}\n")
+    lines.append(f"## Edited Board {' (Edited)' if edited else ' (No Edits)'}\n")
     lines.append(format_board_table(edited_board if edited_board else parsed_board) + "\n")
     lines.append("---\n")
 
@@ -108,15 +108,10 @@ def save_solution_report(input_board, parsed_board, edited_board, solved_board, 
     lines.append(format_board_table(solved_board) + "\n")
     lines.append("---\n")
 
-    lines.append("## Final Board State (AI Agent)\n")
-    lines.append(format_board_table(ai_metrics.get("final_board", [[]])) + "\n")
-    lines.append("---\n")
-
-    lines.append("## Comparative Performance Table\n")
-    lines.append("| Method       | Solved | Steps | Time (s) |")
-    lines.append("|--------------|--------|-------|----------|")
-    lines.append(f"| Backtracking | {'Yes' if bckt_metrics['solved'] else 'No'} | {bckt_metrics['steps']} | {bckt_metrics['duration']:.4f} |")
-    lines.append(f"| AI Agent     | {'Yes' if ai_metrics['solved'] else 'No'} | {ai_metrics['steps']} | {ai_metrics['duration']:.4f} |")
+    lines.append("## Backtracking Performance\n")
+    lines.append("| Solved | Steps | Time (s) |")
+    lines.append("|--------|-------|----------|")
+    lines.append(f"| {'Yes' if bckt_metrics['solved'] else 'No'} | {bckt_metrics['steps']} | {bckt_metrics['duration']:.4f} |")
     lines.append("---\n")
 
     # Attempt to include console output if log file exists
