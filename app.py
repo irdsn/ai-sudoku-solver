@@ -25,6 +25,7 @@ import sys
 import os
 import io
 import copy
+import json
 import logging
 from vision.image_parser import extract_board_from_image            # Extracts 9x9 board from image
 from solver.bckt_logic_solver import SudokuSolver                   # Sudoku solver - Backtracking logic
@@ -33,6 +34,7 @@ from utils.reporter import save_solution_report                     # save repor
 from utils.user_input import prompt_user_for_image                  # GUI-based image selector
 from utils.extracted_board_editor import edit_board_interactively   # Optional board editor
 from utils.extracted_board_editor import print_board                # Print board functionality
+from utils.reporter import generate_trace_filename                  # Solution traces
 
 
 ##################################################################################################
@@ -41,43 +43,53 @@ from utils.extracted_board_editor import print_board                # Print boar
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), ".")))
 
-SAVE_REPORT = True  # Set to True to generate markdown report
-
 ##################################################################################################
-#                                     DUAL OUTPUT STREAM WRAPPER                                 #
-#                                                                                                #
-# This utility class redirects output to multiple streams simultaneously.                        #
-# It is used to mirror `stdout` and `stderr` to both the terminal and an in-memory buffer,       #
-# allowing real-time console display while also capturing the entire execution log for reporting.#
-#                                                                                                #
-# Useful for generating full reproducible logs inside the Markdown report.                       #
+#                                        IMPLEMENTATION                                          #
 ##################################################################################################
 
 class DualOutput:
+    """
+    Custom output stream that duplicates stdout and stderr messages to multiple destinations.
+
+    Used to display console output in real-time while also capturing it for later use
+    (e.g., in Markdown reports).
+    """
+
     def __init__(self, *outputs):
         self.outputs = outputs
 
     def write(self, message):
+        """
+        Writes a message to all attached output streams.
+
+        Args:
+            message (str): The string message to write.
+        """
+
         for out in self.outputs:
             out.write(message)
             out.flush()
 
     def flush(self):
+        """
+        Flushes all attached output streams to ensure data is written immediately.
+        """
+
         for out in self.outputs:
             out.flush()
 
-##################################################################################################
-#                                      MAIN EXECUTION LOGIC                                      #
-#                                                                                                #
-# High-level orchestration of the Sudoku solving pipeline.                                       #
-# 1. Loads an image selected by the user                                                         #
-# 2. Extracts a 9x9 grid of digits using CNN-based OCR                                           #
-# 3. Optionally allows the user to modify detected values                                        #
-# 4. Solves the puzzle with backtracking                                                         #
-# 5. Generates a Markdown report of the solution                                                 #
-##################################################################################################
-
 def main():
+    """
+    Main function that executes the full Sudoku solving pipeline.
+
+    Steps:
+    - Prompts the user to select an input image.
+    - Extracts and reconstructs the Sudoku board using computer vision and OCR.
+    - Allows manual correction of recognition errors.
+    - Solves the board using a backtracking algorithm.
+    - Saves a Markdown report and final solving trace for review.
+    """
+
     IMAGE_PATH = prompt_user_for_image()
 
     # Prepare in-memory capture of stdout/stderr
@@ -108,7 +120,7 @@ def main():
 
     input_board = copy.deepcopy(parsed_board)
     edit_board_interactively(parsed_board)
-    edited_board = parsed_board
+    edited_board = copy.deepcopy(parsed_board)
 
     # Create copies of the user-corrected board
     logic_board = copy.deepcopy(edited_board)
@@ -126,42 +138,59 @@ def main():
     if logic_success:
         logger.info("\n✅ Logic Solver: Puzzle solved!")
         print_board(logic_solver.board)
-    else:
-        logger.warning("⚠️ Logic Solver could not solve the puzzle.")
 
-    bckt_metrics = {
-        "method": "Backtracking",
-        "solved": logic_success,
-        "steps": logic_solver.steps,
-        "duration": logic_solver.time_taken
-    }
+        # Save only final cell assignments (not all trial steps)
+        trace_path = generate_trace_filename(IMAGE_PATH)
+        os.makedirs("outputs", exist_ok=True)
 
-    ##################################################################################################
-    #                                    GENERATE MARKDOWN REPORT                                    #
-    ##################################################################################################
+        final_trace = []
+        solved_board = logic_solver.get_board()
 
-    # Restore and save captured console output to file
-    sys.stdout = sys.__stdout__
-    sys.stderr = sys.__stderr__
+        for i in range(9):
+            for j in range(9):
+                if edited_board[i][j] == 0:
+                    final_trace.append({
+                        "row": i,
+                        "col": j,
+                        "value": solved_board[i][j]
+                    })
 
-    console_log_path = os.path.join("outputs", f"{os.path.splitext(os.path.basename(IMAGE_PATH))[0]}_console.log")
-    with open(console_log_path, "w") as f:
-        f.write(log_capture.getvalue())
+        with open(trace_path, "w") as f:
+            json.dump(final_trace, f, indent=2)
 
-    if SAVE_REPORT and logic_success:
+        logger.info(f"🧾 Final trace saved to: {trace_path}")
+
+        # Restore and save captured console output to file
+        sys.stdout = sys.__stdout__
+        sys.stderr = sys.__stderr__
+
+        console_log_path = os.path.join("outputs", f"{os.path.splitext(os.path.basename(IMAGE_PATH))[0]}_console.log")
+        with open(console_log_path, "w") as f:
+            f.write(log_capture.getvalue())
+
         save_solution_report(
             input_board=input_board,
             parsed_board=input_board,
             edited_board=edited_board,
             solved_board=logic_solver.board,
-            bckt_metrics=bckt_metrics,
+            bckt_metrics={
+                "method": "Backtracking",
+                "solved": logic_success,
+                "steps": logic_solver.steps,
+                "duration": logic_solver.time_taken
+            },
             image_path=IMAGE_PATH
         )
+
+    else:
+        logger.warning("⚠️ Logic Solver could not solve the puzzle.")
+        sys.stdout = sys.__stdout__
+        sys.stderr = sys.__stderr__
 
     logger.removeHandler(capture_handler)
 
 ##################################################################################################
-#                                            ENTRY POINT                                         #
+#                                               MAIN                                             #
 ##################################################################################################
 
 if __name__ == "__main__":

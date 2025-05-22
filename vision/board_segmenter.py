@@ -16,29 +16,20 @@ import numpy as np
 import os
 
 ##################################################################################################
-#                                    IMAGE SEGMENTATION LOGIC                                    #
-#                                                                                                #
-# These helper functions handle all stages of preprocessing and grid extraction:                 #
-# - Preprocessing the image with grayscale, blur and thresholding                                #
-# - Finding the largest contour assumed to be the board                                          #
-# - Warping the board into a clean top-down perspective                                          #
-# - Splitting the 450x450 grid into 81 cell images (50x50 each)                                  #
-##################################################################################################
-
-
-##################################################################################################
-#                               IMAGE PREPROCESSING FUNCTION                                     #
-#                                                                                                #
-# Enhances the image to highlight the grid structure for contour detection.                      #
-# Applies grayscale conversion, Gaussian blur, and adaptive thresholding.                        #
-#                                                                                                #
-# Args:                                                                                          #
-#     image (np.ndarray): Original BGR Sudoku image.                                             #
-# Returns:                                                                                       #
-#     np.ndarray: Preprocessed binary image highlighting grid lines.                             #
+#                                        IMPLEMENTATION                                          #
 ##################################################################################################
 
 def preprocess_image(image):
+    """
+    Applies grayscale, Gaussian blur, and adaptive thresholding to enhance the Sudoku grid.
+
+    Args:
+        image (np.ndarray): Original BGR Sudoku image.
+
+    Returns:
+        np.ndarray: Preprocessed binary image highlighting grid lines.
+    """
+
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     blur = cv2.GaussianBlur(gray, (5, 5), 0)
     thresh = cv2.adaptiveThreshold(
@@ -47,40 +38,39 @@ def preprocess_image(image):
     )
     return thresh
 
-##################################################################################################
-#                                CONTOUR DETECTION FUNCTION                                      #
-#                                                                                                #
-# Detects the largest external contour in the binary image, which is assumed to be the           #
-# Sudoku grid. This contour will be used for warping the board into a square.                    #
-#                                                                                                #
-# Args:                                                                                          #
-#     thresh_img (np.ndarray): Preprocessed binary image.                                        #
-# Returns:                                                                                       #
-#     np.ndarray: Largest contour found in the image.                                            #
-##################################################################################################
-
 def find_largest_contour(thresh_img):
+    """
+    Finds the largest external contour in a thresholded image.
+
+    Assumes the largest contour corresponds to the Sudoku board.
+
+    Args:
+        thresh_img (np.ndarray): Binary preprocessed image.
+
+    Returns:
+        np.ndarray: Contour of the Sudoku grid.
+    """
+
     contours, _ = cv2.findContours(thresh_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     return max(contours, key=cv2.contourArea)
 
-
-##################################################################################################
-#                           GRID WARPING AND ORIENTATION CORRECTION                              #
-#                                                                                                #
-# Applies a perspective transform to the detected 4-point Sudoku contour to obtain a             #
-# top-down, square view of the grid. Also rotates and flips the image to correct orientation.    #
-#                                                                                                #
-# Args:                                                                                          #
-#     image (np.ndarray): Original image.                                                        #
-#     contour (np.ndarray): 4-point contour of the detected grid.                                #
-#     size (int): Output size of the warped image (default: 450x450).                            #
-# Returns:                                                                                       #
-#     np.ndarray: Warped and correctly oriented grid image.                                      #
-# Raises:                                                                                        #
-#     ValueError: If the contour does not have exactly 4 points.                                 #
-##################################################################################################
-
 def warp_perspective(image, contour, size=450):
+    """
+    Warps a detected grid contour into a top-down square view.
+
+    Applies a perspective transform and fixes orientation for consistency.
+
+    Args:
+        image (np.ndarray): Original image.
+        contour (np.ndarray): 4-point contour of the Sudoku grid.
+        size (int): Desired output size (default: 450).
+
+    Returns:
+        np.ndarray: Warped, oriented square image of the Sudoku grid.
+
+    Raises:
+        ValueError: If the contour does not have exactly 4 points.
+    """
 
     peri = cv2.arcLength(contour, True)
     approx = cv2.approxPolyDP(contour, 0.02 * peri, True)
@@ -106,19 +96,16 @@ def warp_perspective(image, contour, size=450):
 
     return warped
 
-##################################################################################################
-#                                CELL SEGMENTATION FUNCTION                                      #
-#                                                                                                #
-# Splits the warped 450x450 Sudoku board into 81 square cells (9x9 grid), each of equal size.    #
-# These cell images are used for individual digit classification.                                #
-#                                                                                                #
-# Args:                                                                                          #
-#     warped_grid (np.ndarray): Top-down view of the Sudoku grid (450x450).                      #
-# Returns:                                                                                       #
-#     list[np.ndarray]: List of 81 cell images.                                                  #
-##################################################################################################
-
 def segment_cells(warped_grid):
+    """
+    Splits a warped Sudoku grid into 81 equal-sized cell images.
+
+    Args:
+        warped_grid (np.ndarray): Top-down 450x450 Sudoku grid image.
+
+    Returns:
+        list[np.ndarray]: List of 81 cell images in row-major order.
+    """
 
     cells = []
     size = warped_grid.shape[0]  # assuming square
@@ -131,14 +118,17 @@ def segment_cells(warped_grid):
             cells.append(cell)
     return cells
 
-##################################################################################################
-#                                    MAIN FUNCTION INTERFACE                                     #
-#                                                                                                #
-# This function loads an image, detects and warps the Sudoku grid, and returns 81 segmented      #
-# cell images for further processing.                                                            #
-##################################################################################################
-
 def extract_cells_from_image(image_path: str) -> list:
+    """
+    Full pipeline to extract 81 cell images from a Sudoku puzzle image.
+
+    Args:
+        image_path (str): Path to the input image.
+
+    Returns:
+        list[np.ndarray]: List of 81 segmented cell images.
+    """
+
     if not os.path.exists(image_path):
         raise FileNotFoundError(f"Image not found: {image_path}")
 

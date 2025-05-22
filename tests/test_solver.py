@@ -13,13 +13,16 @@
 from solver.bckt_logic_solver import SudokuSolver
 
 ##################################################################################################
-#                                VALID PUZZLE TEST CASE                                          #
-#                                                                                                #
-# Tests a known valid 9x9 Sudoku puzzle. Confirms that the solver                                #
-# completes the puzzle successfully and returns True.                                            #
+#                                        IMPLEMENTATION                                          #
 ##################################################################################################
 
 def test_solver_solves_valid_board():
+    """
+    Tests that the SudokuSolver can correctly solve a valid Sudoku puzzle.
+
+    Verifies that the solver returns True and completes the puzzle successfully.
+    """
+
     board = [
         [5, 3, 0, 0, 7, 0, 0, 0, 0],
         [6, 0, 0, 1, 9, 5, 0, 0, 0],
@@ -37,14 +40,14 @@ def test_solver_solves_valid_board():
 
     assert solved, "Solver failed to solve a valid puzzle"
 
-##################################################################################################
-#                                INVALID PUZZLE TEST CASE                                        #
-#                                                                                                #
-# Tests a board with conflicting values (duplicate 5s in row).                                   #
-# Confirms that the solver cannot find a solution.                                               #
-##################################################################################################
-
 def test_solver_rejects_invalid_board():
+    """
+    Tests that the SudokuSolver correctly rejects an invalid puzzle.
+
+    The board contains conflicting values and should not be solvable.
+    The solver is expected to return False.
+    """
+
     invalid_board = [
         [5, 3, 5, 0, 7, 0, 0, 0, 0],  # ← duplicate 5 in row
         [6, 0, 0, 1, 9, 5, 0, 0, 0],

@@ -19,9 +19,6 @@ from vision.board_segmenter import extract_cells_from_image
 
 ##################################################################################################
 #                                        CONFIGURATION                                           #
-#                                                                                                #
-# Define paths for input Sudoku image and output directory where extracted cell images           #
-# will be saved. The output directory is automatically created if it does not exist.             #
 ##################################################################################################
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -33,19 +30,24 @@ IMAGE_PATH = "../datasets/sudokus/extreme_6.jpg"
 OUTPUT_DIR = "../datasets/raw"
 
 ##################################################################################################
-#                                      CELL EXTRACTION LOGIC                                     #
-#                                                                                                #
-# This function loads a Sudoku image, segments it into its 81 individual cells using the         #
-# board segmenter, and saves each cell as a PNG image.                                           #
-#                                                                                                #
-# Input:                                                                                         #
-# - image_path (str): Path to the Sudoku image file to process.                                  #
-#                                                                                                #
-# Output:                                                                                        #
-# - 81 cell images saved to disk under a subfolder named after the original image.               #
+#                                        IMPLEMENTATION                                          #
 ##################################################################################################
 
 def save_cells_from_image(image_path: str):
+    """
+    Segments a Sudoku image into 81 individual cell images and saves them to disk.
+
+    Given a path to a full Sudoku board image, this function uses the board segmenter
+    to extract each of the 81 cells. The resulting cell images are saved as individual
+    PNG files in a subdirectory named after the source image.
+
+    Args:
+        image_path (str): Path to the input Sudoku image file.
+
+    Output:
+        81 PNG images saved to a subfolder within OUTPUT_DIR.
+    """
+
     image_name = os.path.splitext(os.path.basename(image_path))[0]
     output_path = os.path.join(OUTPUT_DIR, image_name)
 
@@ -64,9 +66,6 @@ def save_cells_from_image(image_path: str):
 
 ##################################################################################################
 #                                               MAIN                                             #
-#                                                                                                #
-# Script entry point. Executes the cell extraction pipeline for the image defined in             #
-# IMAGE_PATH.                                                                                    #
 ##################################################################################################
 
 if __name__ == "__main__":

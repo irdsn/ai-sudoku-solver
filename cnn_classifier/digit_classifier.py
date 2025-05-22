@@ -21,12 +21,8 @@ import cv2
 import os
 from tensorflow.keras.models import load_model
 
-###################################################################################################
+##################################################################################################
 #                                        CONFIGURATION                                           #
-#                                                                                                #
-# Loads the trained CNN model from disk using the standard .keras format.                        #
-# Defines the input image size expected by the model.                                            #
-# Sets up class labels for mapping prediction outputs to digits (1–9) or 'empty'.                #
 ##################################################################################################
 
 MODEL_PATH = os.path.join(os.path.dirname(__file__), "model", "digit_model.keras")
@@ -36,20 +32,23 @@ model = load_model(MODEL_PATH)
 class_names = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'empty']
 
 ##################################################################################################
-#                                     CELL CLASSIFICATION FUNCTION                               #
-#                                                                                                #
-# Predicts the digit contained in a Sudoku cell using a trained CNN model.                       #
-# The input image is first resized, normalized, and reshaped to fit model input format.          #
-# The model outputs a class label which is mapped to its numeric value (1–9) or 0 if empty.      #
-#                                                                                                #
-# Args:                                                                                          #
-#     cell_img (np.ndarray): Grayscale cell image as a 2D NumPy array.                           #
-#                                                                                                #
-# Returns:                                                                                       #
-#     int: Predicted digit (1–9) or 0 if classified as empty.                                    #
+#                                        IMPLEMENTATION                                          #
 ##################################################################################################
 
 def classify_cell(cell_img: np.ndarray) -> int:
+    """
+    Classifies the digit present in a Sudoku cell using a pre-trained CNN model.
+
+    The input is a grayscale image of a single cell. The image is resized,
+    normalized, and reshaped to match the model’s expected input format.
+    The model then predicts whether the cell contains a digit (1–9) or is empty.
+
+    Args:
+        cell_img (np.ndarray): Grayscale image of the Sudoku cell as a 2D NumPy array.
+
+    Returns:
+        int: Predicted digit (1–9), or 0 if the cell is classified as empty.
+    """
 
     # Resize and normalize
     cell = cv2.resize(cell_img, (IMG_SIZE, IMG_SIZE))

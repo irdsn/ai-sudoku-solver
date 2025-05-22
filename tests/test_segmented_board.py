@@ -12,13 +12,16 @@
 from vision.board_segmenter import extract_cells_from_image
 
 ##################################################################################################
-#                                CELL SEGMENTATION TEST CASE                                     #
-#                                                                                                #
-# Ensures that the board segmenter returns exactly 81 cells from a full Sudoku board image.      #
-# Each cell should be a non-null image array.                                                    #
+#                                        IMPLEMENTATION                                          #
 ##################################################################################################
 
 def test_extract_cells_from_image_returns_81_cells():
+    """
+    Unit test for the board segmenter module.
+
+    Verifies that the input Sudoku image is segmented into exactly 81 non-null cell images.
+    """
+
     image_path = "tests/resources/easy.jpg"
     cells = extract_cells_from_image(image_path)
 

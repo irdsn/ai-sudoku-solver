@@ -15,17 +15,20 @@
 from utils.logs_config import logger
 
 ##################################################################################################
-#                                  BOARD VISUALIZATION FUNCTION                                  #
-#                                                                                                #
-# Displays the current state of the 9x9 Sudoku board in a human-readable format.                 #
-# Numbers are grouped into 3x3 blocks with visual separators. Empty cells are shown as dots (.)  #
-# to distinguish them clearly from filled values.                                                #
-#                                                                                                #
-# Args:                                                                                          #
-#     board (list[list[int]]): The 9x9 Sudoku board to display.                                  #
+#                                        IMPLEMENTATION                                          #
 ##################################################################################################
 
 def print_board(board: list[list[int]]) -> None:
+    """
+    Displays a 9x9 Sudoku board in a human-readable grid format.
+
+    Groups digits into 3x3 blocks with separators for better visual clarity.
+    Empty cells are displayed as dots (.) to distinguish them from filled ones.
+
+    Args:
+        board (list[list[int]]): The 9x9 Sudoku board to display.
+    """
+
     for i in range(9):
         if i % 3 == 0 and i != 0:
             print("-" * 21)
@@ -35,18 +38,16 @@ def print_board(board: list[list[int]]) -> None:
             print(board[i][j] if board[i][j] != 0 else ".", end=" ")
         print()
 
-##################################################################################################
-#                             INTERACTIVE BOARD EDITING FUNCTION                                 #
-#                                                                                                #
-# Allows the user to modify specific cells in the extracted board before solving.                #
-# Users can input cell coordinates (row,col) and values (1–9) or 0 to clear the cell.            #
-# A live view of the board is printed after each edit to verify changes.                         #
-#                                                                                                #
-# Args:                                                                                          #
-#     board (list[list[int]]): 9x9 Sudoku board extracted from the image                         #
-##################################################################################################
-
 def edit_board_interactively(board):
+    """
+    Provides an interactive prompt to manually edit a 9x9 Sudoku board.
+
+    The user can modify specific cells by entering their coordinates and new values.
+    This function is typically used to correct OCR errors before solving.
+
+    Args:
+        board (list[list[int]]): Sudoku board to be edited in place.
+    """
 
     while True:
         # Prompt user to confirm if they want to edit a cell

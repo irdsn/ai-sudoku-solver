@@ -24,9 +24,6 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 ##################################################################################################
 #                                      CONFIGURATION                                             #
-#                                                                                                #
-# Sets the image size, batch size, and relevant file paths for model and dataset locations.      #
-# Creates the output directory to store test evaluation results and visualizations.              #
 ##################################################################################################
 
 IMG_SIZE = 64
@@ -38,10 +35,22 @@ OUTPUT_DIR = "results/test"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 ##################################################################################################
-#                                     EVALUATION FUNCTION                                        #
+#                                        IMPLEMENTATION                                          #
 ##################################################################################################
 
 def run_evaluation():
+    """
+    Evaluates the trained CNN model on the labeled test dataset.
+
+    This function:
+    - Loads the test images using a Keras ImageDataGenerator.
+    - Evaluates the model on the test set and saves loss and accuracy to a JSON file.
+    - Generates predictions for the entire dataset and computes a confusion matrix.
+    - Saves the confusion matrix as a heatmap image.
+    - Exports a detailed CSV report including filenames, true labels, and predicted labels.
+
+    Output files are saved in the directory defined by OUTPUT_DIR.
+    """
 
     ##################################################################################################
     #                                      LOAD TEST DATA                                            #
@@ -143,7 +152,7 @@ def run_evaluation():
     logger.info("📁 Saved predictions report CSV.")
 
 ##################################################################################################
-#                                       EXECUTION ENTRY POINT                                     #
+#                                               MAIN                                             #
 ##################################################################################################
 
 if __name__ == "__main__":

@@ -25,9 +25,6 @@ from tensorflow.keras.callbacks import CSVLogger
 
 ##################################################################################################
 #                                        CONFIGURATION                                           #
-#                                                                                                #
-# Define image size, batch size, training epochs, and file paths for model output and            #
-# dataset directories. These parameters control the training process and where results are saved.#
 ##################################################################################################
 
 IMG_SIZE = 64

@@ -17,19 +17,22 @@ from cnn_classifier.digit_classifier import classify_cell
 from utils.logs_config import logger
 
 ##################################################################################################
-#                                    MAIN FUNCTION INTERFACE                                     #
-#                                                                                                #
-# Executes the complete pipeline: loads the image, segments it into 81 cells,                    #
-# classifies each cell using the CNN model, and returns a 9x9 board matrix.                      #
-#                                                                                                #
-# Args:                                                                                          #
-#     image_path (str): Path to the input Sudoku image file (e.g., .jpg or .png).                #
-#                                                                                                #
-# Returns:                                                                                       #
-#     List[List[int]]: 9x9 matrix where each cell is a digit (1–9) or 0 for empty.               #
+#                                        IMPLEMENTATION                                          #
 ##################################################################################################
 
 def extract_board_from_image(image_path: str) -> List[List[int]]:
+    """
+    Extracts a 9x9 Sudoku board from an input image using cell segmentation and digit classification.
+
+    The image is split into 81 cells, each of which is passed through a CNN model to detect the digit.
+    Unrecognized or empty cells are represented with a 0.
+
+    Args:
+        image_path (str): Path to the input image file (.jpg or .png).
+
+    Returns:
+        List[List[int]]: A 9x9 matrix representing the Sudoku board.
+    """
 
     #print(f"📸 Loading image: {image_path}")
 
@@ -52,4 +55,3 @@ def extract_board_from_image(image_path: str) -> List[List[int]]:
         logger.info(" ".join(str(d) if d != 0 else "." for d in r))
     '''
     return board
-

@@ -8,7 +8,7 @@
 # This module is intended to be reused anywhere in the pipeline where user-driven                #
 # image selection is needed.                                                                     #
 ##################################################################################################
-import logging
+
 ##################################################################################################
 #                                            IMPORTS                                             #
 ##################################################################################################
@@ -20,16 +20,18 @@ from tkinter import filedialog
 from utils.logs_config import logger
 
 ##################################################################################################
-#                                USER IMAGE SELECTION FUNCTION                                   #
-#                                                                                                #
-# Prompts the user with a GUI file dialog to select an image file (JPG or PNG).                  #
-# Performs validation on the selected file and exits gracefully if no valid file is provided.    #
-#                                                                                                #
-# Returns:                                                                                       #
-#     str: Full path to the selected Sudoku image file                                           #
+#                                        IMPLEMENTATION                                          #
 ##################################################################################################
 
 def prompt_user_for_image():
+    """
+    Opens a GUI dialog to let the user select a Sudoku image file (JPG or PNG).
+
+    Performs validation on the file path and exits gracefully if the selection is invalid.
+
+    Returns:
+        str: Full path to the selected image file.
+    """
 
     # Initialize Tkinter root and hide the main window
     root = tk.Tk()

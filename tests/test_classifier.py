@@ -13,13 +13,17 @@ import numpy as np
 from cnn_classifier.digit_classifier import classify_cell
 
 ##################################################################################################
-#                              CLASSIFIER PREDICTION TEST CASE                                   #
-#                                                                                                #
-# Uses a white dummy image as input. Ensures that the classifier                                 #
-# returns an integer between 0 and 9 (0 = empty).                                                #
+#                                        IMPLEMENTATION                                          #
 ##################################################################################################
 
 def test_classify_cell_returns_digit_or_zero():
+    """
+    Unit test for the digit classifier.
+
+    Verifies that the classifier returns an integer between 0 and 9
+    (where 0 indicates an empty cell) when given a dummy grayscale image.
+    """
+
     dummy_cell = np.ones((64, 64), dtype="uint8") * 255  # white image
 
     prediction = classify_cell(dummy_cell)

@@ -13,13 +13,17 @@
 from vision.image_parser import extract_board_from_image
 
 ##################################################################################################
-#                                 BOARD EXTRACTION TEST CASE                                     #
-#                                                                                                #
-# Tests that the image parser returns a valid 9x9 matrix from a sample image.                    #
-# Validates the structure of the board (list of lists with 9 elements each).                     #
+#                                        IMPLEMENTATION                                          #
 ##################################################################################################
 
 def test_extract_board_returns_valid_matrix():
+    """
+    Unit test for the image parser module.
+
+    Verifies that a Sudoku image is correctly processed into a valid 9x9 matrix.
+    Ensures that the result is a list of 9 lists, each containing 9 elements.
+    """
+
     image_path = "tests/resources/easy.jpg"
     board = extract_board_from_image(image_path)
 
