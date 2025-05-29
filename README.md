@@ -62,7 +62,7 @@ AISudokuSolver/
 │   ├── model/                     # Folder containing the saved trained model
 │   ├── results/                   # Evaluation metrics, confusion matrix and logs
 │   ├── digit_classifier.py        # Loads trained CNN and classifies digits (0–9 or empty)
-│   ├── evaluate_model.py           # Evaluates CNN on test dataset and generates metrics
+│   ├── evaluate_model.py          # Evaluates CNN on test dataset and generates metrics
 │   ├── extrac_cells.py            # Segments a Sudoku image into 81 raw cells
 │   └── train_model.py             # Trains a CNN on labeled digit images
 │
@@ -73,7 +73,7 @@ AISudokuSolver/
 │   ├── train/                     # Labeled data for training
 │   └── val/                       # Labeled data for validation
 │
-├── images/                      # Images used in README: input sample and extracted cells
+├── images/                        # Images used in README: input sample and extracted cells
 │   ├── markdown_sudoku.jpg
 │   ├── markdown_5_cell.jpg
 │   └── markdown_empty_cell.jpg
@@ -89,8 +89,8 @@ AISudokuSolver/
 ├── solver/                        # Core solving algorithm
 │   └── bckt_logic_solver.py       # Optimized backtracking with MRV & forward checking
 │
-├── tests/                        # PyTest unit tests covering critical modules
-│   ├── resources/                # Test images (e.g., easy.jpg)
+├── tests/                         # PyTest unit tests covering critical modules
+│   ├── resources/                 # Test images (e.g., easy.jpg)
 │   ├── test_classifier.py
 │   ├── test_image_parser.py
 │   ├── test_segmented_board.py
