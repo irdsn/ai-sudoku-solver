@@ -1,6 +1,8 @@
 # AISudokuSolver: Computer Vision-Based (CNN) Sudoku Solver  and LLM Trace Analysis
 
 ![Python](https://img.shields.io/badge/Python-3.11-blue.svg)
+![AI](https://img.shields.io/badge/AI-CNN_%26_LLM-blueviolet)
+![Task](https://img.shields.io/badge/Task-Computer_Vision-orange)
 ![Last Updated](https://img.shields.io/badge/Last%20Updated-May%202025-brightgreen)
 
 A pipeline to solve Sudoku puzzles from images, using computer vision for digit extraction, a backtracking algorithm for solving, and LLMs for analytical summaries.  
@@ -144,44 +146,44 @@ AISudokuSolver/
 The following diagram illustrates the overall data flow within the Sudoku solving pipeline, from image input to final report generation:
 
 ```bash
-                                ╔=======================================╗
-                                ║        Input Image (.jpg/.png)        ║
-                                ╚=======================================╝
-                                                   │
-                                                   ▼
-                                ╔=======================================╗
-                                ║ vision/board_segmenter.py             ║
-                                ║   → Segments image into 81 cells      ║
-                                ╚=======================================╝
-                                                   │
-                                                   ▼
-                                ╔=======================================╗
-                                ║ cnn_classifier/digit_classifier.py    ║
-                                ║ → Classifies each cell (0–9 or empty) ║
-                                ╚=======================================╝
-                                                   │
-                                                   ▼
-                                ╔=======================================╗
-                                ║            9x9 Sudoku Grid            ║
-                                ╚=======================================╝
-                                                   │
-                                                   ▼
-                                ╔=======================================╗
-                                ║ solver/bckt_logic_solver.py           ║
-                                ║ → Solves using optimized backtracking ║
-                                ╚=======================================╝
-                                                   │
-                                                   ▼
-                                ╔=======================================╗
-                                ║ utils/ai_summarizer.py                ║
-                                ║   → LLM summarizes solving process    ║
-                                ╚=======================================╝
-                                                   │
-                                                   ▼
-                                ╔=======================================╗
-                                ║ utils/reporter.py                     ║
-                                ║   → Generates Markdown report         ║
-                                ╚=======================================╝
+                             ╔=======================================╗
+                             ║        Input Image (.jpg/.png)        ║
+                             ╚=======================================╝
+                                                │
+                                                ▼
+                             ╔=======================================╗
+                             ║ vision/board_segmenter.py             ║
+                             ║   → Segments image into 81 cells      ║
+                             ╚=======================================╝
+                                                │
+                                                ▼
+                             ╔=======================================╗
+                             ║ cnn_classifier/digit_classifier.py    ║
+                             ║ → Classifies each cell (0–9 or empty) ║
+                             ╚=======================================╝
+                                                │
+                                                ▼
+                             ╔=======================================╗
+                             ║            9x9 Sudoku Grid            ║
+                             ╚=======================================╝
+                                                │
+                                                ▼
+                             ╔=======================================╗
+                             ║ solver/bckt_logic_solver.py           ║
+                             ║ → Solves using optimized backtracking ║
+                             ╚=======================================╝
+                                                │
+                                                ▼
+                             ╔=======================================╗
+                             ║ utils/ai_summarizer.py                ║
+                             ║   → LLM summarizes solving process    ║
+                             ╚=======================================╝
+                                                │
+                                                ▼
+                             ╔=======================================╗
+                             ║ utils/reporter.py                     ║
+                             ║   → Generates Markdown report         ║
+                             ╚=======================================╝
 ```
 
 The system is modular by design. Each stage is handled by a dedicated component, enabling both flexibility and testability across the pipeline.
