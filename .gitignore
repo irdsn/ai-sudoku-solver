@@ -4,6 +4,9 @@ venv/
 env/
 ENV/
 
+# Local environment variables
+.env
+
 # Python cache
 __pycache__/
 *.py[cod]
@@ -26,18 +29,19 @@ Thumbs.db
 .vscode/
 *.swp
 
-# Temporary editor swap files
-*~
-*.orig
-
-# Local environment variables
-.env
-
 # Compiled bytecode (just in case)
 *.so
 *.pyd
+
+# Temporary editor swap files
+*~
+*.orig
 
 # Packaging
 *.egg-info/
 dist/
 build/
+
+# Pytest coverage reports
+.coverage
+htmlcov/

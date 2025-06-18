@@ -35,17 +35,17 @@ OUTPUT_DIR = "../datasets/raw"
 
 def save_cells_from_image(image_path: str):
     """
-    Segments a Sudoku image into 81 individual cell images and saves them to disk.
+    Segments a Sudoku image into 81 individual cell readme_images and saves them to disk.
 
     Given a path to a full Sudoku board image, this function uses the board segmenter
-    to extract each of the 81 cells. The resulting cell images are saved as individual
+    to extract each of the 81 cells. The resulting cell readme_images are saved as individual
     PNG files in a subdirectory named after the source image.
 
     Args:
         image_path (str): Path to the input Sudoku image file.
 
     Output:
-        81 PNG images saved to a subfolder within OUTPUT_DIR.
+        81 PNG readme_images saved to a subfolder within OUTPUT_DIR.
     """
 
     image_name = os.path.splitext(os.path.basename(image_path))[0]
@@ -62,7 +62,7 @@ def save_cells_from_image(image_path: str):
         filename = f"{image_name}_cell_{idx:02}.png"
         cv2.imwrite(os.path.join(output_path, filename), cell)
 
-    logger.info("✅ Done! Now label the images manually.")
+    logger.info("✅ Done! Now label the readme_images manually.")
 
 ##################################################################################################
 #                                               MAIN                                             #

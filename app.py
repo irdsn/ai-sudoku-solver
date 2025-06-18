@@ -1,197 +1,130 @@
 ##################################################################################################
-#                                        SCRIPT OVERVIEW                                         #
+#                                        FASTAPI ENTRYPOINT                                      #
 #                                                                                                #
-# Main entry point for the complete Sudoku solving pipeline.                                     #
+# This FastAPI application exposes a single endpoint to upload Sudoku readme_images, solve puzzles,     #
+# and return the parsed and solved board with solver metrics.                                    #
 #                                                                                                #
-# This script orchestrates the entire process from image to solution:                            #
-#   1. Prompts the user to select a Sudoku image (JPG/PNG).                                      #
-#   2. Uses computer vision techniques to detect and extract the Sudoku grid.                    #
-#   3. Segments the board into 81 individual cells and classifies each using a trained CNN.      #
-#   4. Reconstructs the 9x9 board with digits and blank cells.                                   #
-#   5. Displays the detected board to the user, offering manual correction if needed.            #
-#   6. Solves the puzzle using both classic backtracking algorithm and AI Agent.                 #
-#   7. Optionally generates a Markdown report with both the original and solved board.           #
+# Endpoints:                                                                                     #
+#   - /healthcheck (GET): Simple status check.                                                   #
+#   - /solve (POST): Upload a Sudoku image and get the solved board.                             #
 #                                                                                                #
-# Output:                                                                                        #
-#   - Displays results to the console.                                                           #
-#   - Saves markdown report to `outputs/` folder if enabled.                                     #
+# The solution is generated using a logic-based backtracking algorithm.                          #
 ##################################################################################################
 
 ##################################################################################################
 #                                            IMPORTS                                             #
 ##################################################################################################
 
-import sys
+import shutil
 import os
-import io
-import copy
+import uuid
 import json
-import logging
-from vision.image_parser import extract_board_from_image            # Extracts 9x9 board from image
-from solver.bckt_logic_solver import SudokuSolver                   # Sudoku solver - Backtracking logic
-from utils.logs_config import logger                                # Logs and events
-from utils.reporter import save_solution_report                     # save report as markdown
-from utils.user_input import prompt_user_for_image                  # GUI-based image selector
-from utils.extracted_board_editor import edit_board_interactively   # Optional board editor
-from utils.extracted_board_editor import print_board                # Print board functionality
-from utils.reporter import generate_trace_filename                  # Solution traces
 
+from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi.responses import JSONResponse
 
-##################################################################################################
-#                                          CONFIGURATION                                         #
-##################################################################################################
+from vision.image_parser import extract_board_from_image
+from solver.bckt_logic_solver import SudokuSolver
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), ".")))
+from utils.logs_config import logger
+from utils.reporter import save_solution_report, generate_trace_filename
 
 ##################################################################################################
-#                                        IMPLEMENTATION                                          #
+#                                     FASTAPI INITIALIZATION                                     #
 ##################################################################################################
 
-class DualOutput:
+app = FastAPI(
+    title="AISudokuSolver API",
+    description=(
+        "A pipeline to solve Sudoku puzzles from readme_images, using computer vision for digit extraction, "
+        "a backtracking algorithm for solving, and LLMs for analytical summaries. "
+        "This API supports seamless integration for automatic puzzle solving and report generation."
+    ),
+    version="1.0.0"
+)
+
+##################################################################################################
+#                                           ENDPOINTS                                            #
+##################################################################################################
+
+@app.get("/healthcheck")
+def healthcheck():
     """
-    Custom output stream that duplicates stdout and stderr messages to multiple destinations.
-
-    Used to display console output in real-time while also capturing it for later use
-    (e.g., in Markdown reports).
+    Health check endpoint to verify that the server is running.
     """
+    return {"status": "ok"}
 
-    def __init__(self, *outputs):
-        self.outputs = outputs
 
-    def write(self, message):
-        """
-        Writes a message to all attached output streams.
-
-        Args:
-            message (str): The string message to write.
-        """
-
-        for out in self.outputs:
-            out.write(message)
-            out.flush()
-
-    def flush(self):
-        """
-        Flushes all attached output streams to ensure data is written immediately.
-        """
-
-        for out in self.outputs:
-            out.flush()
-
-def main():
+@app.post("/solve")
+async def solve_sudoku(image: UploadFile = File(...)):
     """
-    Main function that executes the full Sudoku solving pipeline.
+    Upload a Sudoku image, extract the board, solve it, and return the result.
 
-    Steps:
-    - Prompts the user to select an input image.
-    - Extracts and reconstructs the Sudoku board using computer vision and OCR.
-    - Allows manual correction of recognition errors.
-    - Solves the board using a backtracking algorithm.
-    - Saves a Markdown report and final solving trace for review.
+    Args:
+        image (UploadFile): Uploaded Sudoku image (JPG/PNG).
+
+    Returns:
+        JSON containing the parsed and solved board, steps taken, and duration.
     """
+    if not image.filename.endswith((".jpg", ".jpeg", ".png")):
+        raise HTTPException(status_code=400, detail="Only JPG/PNG readme_images are supported")
 
-    IMAGE_PATH = prompt_user_for_image()
+    # Save the uploaded file temporarily
+    temp_filename = f"temp_{uuid.uuid4()}.png"
+    with open(temp_filename, "wb") as f:
+        shutil.copyfileobj(image.file, f)
 
-    # Prepare in-memory capture of stdout/stderr
-    log_capture = io.StringIO()
-    sys.stdout = DualOutput(sys.__stdout__, log_capture)
-    sys.stderr = DualOutput(sys.__stderr__, log_capture)
+    try:
+        # Step 1: Parse board from image
+        parsed_board = extract_board_from_image(temp_filename)
+        if not isinstance(parsed_board, list) or len(parsed_board) != 9:
+            raise ValueError("Board extraction failed")
 
-    capture_handler = logging.StreamHandler(log_capture)
-    capture_handler.setLevel(logging.DEBUG)
-    capture_handler.setFormatter(logging.Formatter("%(levelname)s - %(message)s"))
+        # Step 2: Solve using logic
+        solver = SudokuSolver(parsed_board)
+        success = solver.solve()
 
-    # Add temporary handler to the logger
-    logger.addHandler(capture_handler)
+        if not success:
+            return JSONResponse(status_code=422, content={"detail": "Could not solve the puzzle"})
 
-    logger.info(f"📸 Loading Sudoku from: {IMAGE_PATH}")
-    parsed_board = extract_board_from_image(IMAGE_PATH)
+        # Step 3: Save trace and report
+        solved_board = solver.get_board()
+        trace_path = generate_trace_filename(temp_filename)
 
-    if not isinstance(parsed_board, list) or len(parsed_board) != 9:
-        logger.error("❌ Failed to extract board from image.")
-        return
-
-    logger.info("\n🧩 Extracted Sudoku Board:")
-    print_board(parsed_board)
-
-    ##################################################################################################
-    #                               OPTIONAL USER CORRECTION BEFORE SOLVING                          #
-    ##################################################################################################
-
-    input_board = copy.deepcopy(parsed_board)
-    edit_board_interactively(parsed_board)
-    edited_board = copy.deepcopy(parsed_board)
-
-    # Create copies of the user-corrected board
-    logic_board = copy.deepcopy(edited_board)
-
-    ##################################################################################################
-    #                              SOLVE WITH LOGIC (BACKTRACKING)                                   #
-    ##################################################################################################
-
-    logic_solver = SudokuSolver(logic_board)
-    logger.info("\n🧠 Solving with logic-based solver...")
-    print_board(logic_solver.board)
-
-    logic_success = logic_solver.solve()
-
-    if logic_success:
-        logger.info("\n✅ Logic Solver: Puzzle solved!")
-        print_board(logic_solver.board)
-
-        # Save only final cell assignments (not all trial steps)
-        trace_path = generate_trace_filename(IMAGE_PATH)
-        os.makedirs("outputs", exist_ok=True)
-
-        final_trace = []
-        solved_board = logic_solver.get_board()
-
-        for i in range(9):
-            for j in range(9):
-                if edited_board[i][j] == 0:
-                    final_trace.append({
-                        "row": i,
-                        "col": j,
-                        "value": solved_board[i][j]
-                    })
+        final_trace = [
+            {"row": i, "col": j, "value": solved_board[i][j]}
+            for i in range(9)
+            for j in range(9)
+            if parsed_board[i][j] == 0
+        ]
 
         with open(trace_path, "w") as f:
             json.dump(final_trace, f, indent=2)
 
-        logger.info(f"🧾 Final trace saved to: {trace_path}")
-
-        # Restore and save captured console output to file
-        sys.stdout = sys.__stdout__
-        sys.stderr = sys.__stderr__
-
-        console_log_path = os.path.join("outputs", f"{os.path.splitext(os.path.basename(IMAGE_PATH))[0]}_console.log")
-        with open(console_log_path, "w") as f:
-            f.write(log_capture.getvalue())
-
         save_solution_report(
-            input_board=input_board,
-            parsed_board=input_board,
-            edited_board=edited_board,
-            solved_board=logic_solver.board,
+            input_board=parsed_board,
+            solved_board=solved_board,
             bckt_metrics={
                 "method": "Backtracking",
-                "solved": logic_success,
-                "steps": logic_solver.steps,
-                "duration": logic_solver.time_taken
+                "solved": success,
+                "steps": solver.steps,
+                "duration": solver.time_taken
             },
-            image_path=IMAGE_PATH
+            image_path=temp_filename
         )
 
-    else:
-        logger.warning("⚠️ Logic Solver could not solve the puzzle.")
-        sys.stdout = sys.__stdout__
-        sys.stderr = sys.__stderr__
+        return {
+            "parsed_board": parsed_board,
+            "solved_board": solved_board,
+            "steps": solver.steps,
+            "duration": solver.time_taken,
+        }
 
-    logger.removeHandler(capture_handler)
+    except Exception as e:
+        logger.exception("❌ Failed to solve puzzle.")
+        raise HTTPException(status_code=500, detail=str(e))
 
-##################################################################################################
-#                                               MAIN                                             #
-##################################################################################################
-
-if __name__ == "__main__":
-    main()
+    finally:
+        # Clean up temporary file
+        if os.path.exists(temp_filename):
+            os.remove(temp_filename)

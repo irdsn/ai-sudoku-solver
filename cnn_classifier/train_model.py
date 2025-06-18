@@ -1,10 +1,9 @@
 ##################################################################################################
 #                                        SCRIPT OVERVIEW                                         #
 #                                                                                                #
-# This script trains a Convolutional Neural Network (CNN) to classify digits 1–9 and empty cells #
-# from Sudoku cell images. It uses labeled images stored in datasets/train and datasets/val,     #
-# organized into class folders.                                                                  #
-# The trained model is saved to cnn_classifier/model/digit_model.keras                           #
+# This script trains an enhanced CNN model for Sudoku digit recognition using grayscale cell     #
+# readme_images labeled into digits 1–9 and empty cells. It integrates data augmentation, batch         #
+# normalization, and regularization techniques to improve generalization.                        #
 ##################################################################################################
 
 ##################################################################################################
@@ -17,7 +16,7 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 from utils.logs_config import logger
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, BatchNormalization
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
 from tensorflow.keras.optimizers import Adam
@@ -27,13 +26,20 @@ from tensorflow.keras.callbacks import CSVLogger
 #                                        CONFIGURATION                                           #
 ##################################################################################################
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+MODEL_PATH = os.path.join(BASE_DIR, "model", "digit_model.keras")
+OUTPUT_PATH = os.path.join(BASE_DIR, "results", "training")
+CSV_LOG_PATH = os.path.join(OUTPUT_PATH, "training_log.csv")
+PLOT_PATH = os.path.join(OUTPUT_PATH, "training_plot.png")
+METRICS_PATH = os.path.join(OUTPUT_PATH, "training_metrics.json")
+
+TRAIN_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", "datasets", "train"))
+VAL_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", "datasets", "val"))
+
 IMG_SIZE = 64
 BATCH_SIZE = 32
-EPOCHS = 20
-MODEL_PATH = "../cnn_classifier/model/digit_model.keras"
-
-TRAIN_DIR = "../datasets/train"
-VAL_DIR = "../datasets/val"
+EPOCHS = 100
 
 ##################################################################################################
 #                                TRAINING OUTPUT CONFIGURATION                                   #
@@ -46,26 +52,33 @@ VAL_DIR = "../datasets/val"
 # - stdout message with timestamp to indicate training start                                     #
 ##################################################################################################
 
-output_path = "../cnn_classifier/results/training"
-os.makedirs(output_path, exist_ok=True)
+os.makedirs(OUTPUT_PATH, exist_ok=True)
 
-# Setup CSVLogger
-csv_log_path = os.path.join(output_path, "training_log.csv")
-csv_logger = CSVLogger(csv_log_path, append=False)
+# Logs training metrics to a CSV for inspection
+csv_logger = CSVLogger(CSV_LOG_PATH, append=False)
 
 logger.info(f"🕒 Training started at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
 
 ##################################################################################################
 #                                     DATA PREPARATION                                           #
 #                                                                                                #
-# Loads training and validation images from their respective directories. Images are             #
+# Loads training and validation readme_images from their respective directories. Images are             #
 # automatically rescaled and converted to grayscale.                                             #
 #                                                                                                #
 # Output:                                                                                        #
 # - `train_data` and `val_data`: Keras iterators for feeding the model during training.          #
 ##################################################################################################
 
-train_gen = ImageDataGenerator(rescale=1./255)
+# Augmentation increases the robustness of the model to small spatial and intensity variations
+train_gen = ImageDataGenerator(
+    rescale=1./255,
+    rotation_range=10,
+    width_shift_range=0.1,
+    height_shift_range=0.1,
+    zoom_range=0.1,
+    shear_range=0.1
+)
+
 val_gen = ImageDataGenerator(rescale=1./255)
 
 train_data = train_gen.flow_from_directory(
@@ -103,14 +116,23 @@ logger.info(f"📊 Detected classes: {train_data.class_indices}")
 # - Accuracy as the evaluation metric                                                            #
 ##################################################################################################
 
+# Enhanced CNN with Batch Normalization and increased depth for better generalization
 model = Sequential([
-    Conv2D(32, (3, 3), activation="relu", input_shape=(IMG_SIZE, IMG_SIZE, 1)),
+    Conv2D(32, (3, 3), activation="relu", padding='same', input_shape=(IMG_SIZE, IMG_SIZE, 1)),
+    BatchNormalization(),
     MaxPooling2D(2, 2),
-    Conv2D(64, (3, 3), activation="relu"),
+
+    Conv2D(64, (3, 3), activation="relu", padding='same'),
+    BatchNormalization(),
     MaxPooling2D(2, 2),
+
+    Conv2D(128, (3, 3), activation="relu", padding='same'),
+    BatchNormalization(),
+    MaxPooling2D(2, 2),
+
     Flatten(),
-    Dense(128, activation="relu"),
-    Dropout(0.4),
+    Dense(256, activation="relu"),
+    Dropout(0.5),
     Dense(num_classes, activation="softmax")
 ])
 
@@ -139,7 +161,7 @@ checkpoint = ModelCheckpoint(
     verbose=1
 )
 
-early_stop = EarlyStopping(monitor="val_loss", patience=5, restore_best_weights=True)
+early_stop = EarlyStopping(monitor="val_loss", patience=10, restore_best_weights=True)
 
 history = model.fit(
     train_data,
@@ -156,14 +178,10 @@ history = model.fit(
 #                                                                                                #
 # Outputs:                                                                                       #
 # - training_plot.png: Line plot of accuracy over time                                           #
-# - metrics.json: Final epoch summary (acc/loss, val_acc/val_loss, model path)                   #
+# - training_metrics.json: Final epoch summary (acc/loss, val_acc/val_loss, model path)                   #
 ##################################################################################################
 
 # Save training plot
-output_path = "..../cnn_classifier/results/training"
-os.makedirs(output_path, exist_ok=True)
-plot_path = os.path.join(output_path, "training_plot.png")
-
 plt.plot(history.history['accuracy'], label='Train Acc')
 plt.plot(history.history['val_accuracy'], label='Val Acc')
 plt.title('Model Accuracy')
@@ -172,9 +190,9 @@ plt.ylabel('Accuracy')
 plt.legend()
 plt.grid(True)
 plt.tight_layout()
-plt.savefig(plot_path)
+plt.savefig(PLOT_PATH)
 plt.close()
-logger.info(f"📈 Training accuracy plot saved: {plot_path}")
+logger.info(f"📈 Training accuracy plot saved: {PLOT_PATH}")
 
 # Save final metrics as JSON
 metrics = {
@@ -186,11 +204,9 @@ metrics = {
     "model_path": MODEL_PATH
 }
 
-metrics_path = os.path.join(output_path, "metrics.json")
-with open(metrics_path, "w") as f:
+# Save training metrics
+with open(METRICS_PATH, "w") as f:
     json.dump(metrics, f, indent=4)
 
-logger.info(f"📊 Training metrics saved to: {metrics_path}")
-
-
+logger.info(f"📊 Training metrics saved to: {METRICS_PATH}")
 logger.info(f"🕒 Training completed at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")

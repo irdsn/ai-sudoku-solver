@@ -1,8 +1,0 @@
-{
-    "epochs_trained": 20,
-    "final_train_accuracy": 0.9844,
-    "final_val_accuracy": 1.0,
-    "final_train_loss": 0.1046,
-    "final_val_loss": 0.0387,
-    "model_path": "../cnn_classifier/model/digit_model.keras"
-}

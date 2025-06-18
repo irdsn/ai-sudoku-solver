@@ -1,12 +1,12 @@
 # Sudoku Solver Report
 
-**Solved at:** 2025-05-22 21:31:44
+**Solved at:** 2025-06-18 18:09:21
 
 ---
 
 ## Solution Overview
 
-The Sudoku puzzle in question appears to be of moderate difficulty, given that it required 31 recursive steps to solve. The solver's approach appears to have been focused on recursion, a technique often employed to tackle puzzles that have a higher complexity and require more in-depth exploration of possible solutions. In terms of time and efficiency, the completion of the puzzle was impressively quick, taking only 0.01 seconds. This indicates a highly efficient algorithmic process was utilized to systematically eliminate incorrect options and identify the correct solution.
+The Sudoku puzzle under review was of moderate difficulty, as indicated by the solver's need for 31 recursive steps to reach the solution. The approach used was likely a constraint-focused strategy, as this typically involves recursive steps to systematically eliminate possibilities. The resolution of the puzzle was highly efficient; the solver completed it within a remarkably short time frame of 0.01 seconds. This suggests a high degree of skill in rapidly identifying and applying logical constraints.
 
 ---
 
@@ -14,30 +14,13 @@ The Sudoku puzzle in question appears to be of moderate difficulty, given that i
 
 Original image used to extract the Sudoku board.
 
-<img src="easy_markdown.jpg" alt="Sudoku Input" width="400"/>
+<img src="easy_input.jpg" alt="Sudoku Input" width="400"/>
 
 ---
 
 ## Parsed Board (Extracted from Image)
 
 Board generated automatically via OCR and grid detection.
-
-| 3 |   | 5 |   | 8 | 4 | 9 |   | 2 |
-|---|---|---|---|---|---|---|---|---|
-|   | 2 | 9 | 1 | 6 | 3 |   | 5 | 8 |
-| 7 | 8 | 1 |   |   |   | 3 | 4 | 6 |
-|   |   |   | 2 | 4 | 9 |   |   |   |
-| 1 | 9 |   |   | 7 | 8 | 4 | 6 | 3 |
-| 5 |   |   | 6 |   |   |   | 7 |   |
-| 9 | 7 |   | 3 |   | 6 |   | 2 | 4 |
-| 8 | 1 | 3 |   |   | 2 | 6 | 9 |   |
-|   |   | 4 |   |   | 7 | 5 | 3 | 1 |
-
----
-
-## Edited Board  (Edited)
-
-Board after optional manual correction of digit recognition errors.
 
 | 3 |   | 6 |   | 8 | 4 | 9 |   | 2 |
 |---|---|---|---|---|---|---|---|---|
@@ -75,4 +58,4 @@ Summary of solver performance, including total steps and execution time.
 
 | Solved | Steps | Time (s) |
 |--------|-------|----------|
-| Yes | 31 | 0.0110 |
+| Yes | 31 | 0.0090 |

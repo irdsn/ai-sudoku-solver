@@ -108,7 +108,7 @@ class SudokuSolver:
         self.time_taken = round(end - start, 4)
 
         if verbose:
-            logger.info(f"🧠 Steps taken: {self.steps}")
+            logger.info(f"\n🧠 Steps taken: {self.steps}")
             logger.info(f"⏱️ Time taken: {self.time_taken:.4f} seconds")
 
         return solved

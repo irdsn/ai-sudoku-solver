@@ -43,7 +43,7 @@ def run_evaluation():
     Evaluates the trained CNN model on the labeled test dataset.
 
     This function:
-    - Loads the test images using a Keras ImageDataGenerator.
+    - Loads the test readme_images using a Keras ImageDataGenerator.
     - Evaluates the model on the test set and saves loss and accuracy to a JSON file.
     - Generates predictions for the entire dataset and computes a confusion matrix.
     - Saves the confusion matrix as a heatmap image.
@@ -56,10 +56,10 @@ def run_evaluation():
     #                                      LOAD TEST DATA                                            #
     #                                                                                                #
     # Initializes an ImageDataGenerator to rescale pixel values.                                     #
-    # Loads labeled test images from the test dataset directory using `flow_from_directory`.         #
+    # Loads labeled test readme_images from the test dataset directory using `flow_from_directory`.         #
     #                                                                                                #
     # Output:                                                                                        #
-    # - `test_data`: batched generator of grayscale images with categorical labels.                  #
+    # - `test_data`: batched generator of grayscale readme_images with categorical labels.                  #
     ##################################################################################################
 
     test_gen = ImageDataGenerator(rescale=1./255)

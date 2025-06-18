@@ -1,7 +1,7 @@
 ##################################################################################################
 #                                        SCRIPT OVERVIEW                                         #
 #                                                                                                #
-# This module handles digit classification for individual Sudoku cell images.                    #
+# This module handles digit classification for individual Sudoku cell readme_images.                    #
 # It loads a previously trained Convolutional Neural Network (CNN) model,                        #
 # and uses it to predict whether a given grayscale image represents a digit from 1 to 9,         #
 # or if the cell is empty.                                                                       #

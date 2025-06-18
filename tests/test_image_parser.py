@@ -24,7 +24,7 @@ def test_extract_board_returns_valid_matrix():
     Ensures that the result is a list of 9 lists, each containing 9 elements.
     """
 
-    image_path = "tests/resources/easy.jpg"
+    image_path = "tests/resources/inputs/easy.jpg"
     board = extract_board_from_image(image_path)
 
     assert isinstance(board, list), "Board should be a list"

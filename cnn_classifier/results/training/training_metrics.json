@@ -1,0 +1,8 @@
+{
+    "epochs_trained": 56,
+    "final_train_accuracy": 0.9967,
+    "final_val_accuracy": 1.0,
+    "final_train_loss": 0.0089,
+    "final_val_loss": 0.0,
+    "model_path": "/Users/inigo/Repositorios/AISudokuSolver/cnn_classifier/model/digit_model.keras"
+}

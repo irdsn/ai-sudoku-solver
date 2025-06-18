@@ -3,7 +3,7 @@
 #                                                                                                #
 # This script handles Sudoku grid segmentation. It takes a JPG/PNG image of a Sudoku puzzle,     #
 # detects the board using contour detection and perspective transformation, and segments it      #
-# into 81 individual cell images (9x9). These can then be passed to OCR modules for digit        #
+# into 81 individual cell readme_images (9x9). These can then be passed to OCR modules for digit        #
 # extraction.                                                                                    #
 ##################################################################################################
 
@@ -98,13 +98,13 @@ def warp_perspective(image, contour, size=450):
 
 def segment_cells(warped_grid):
     """
-    Splits a warped Sudoku grid into 81 equal-sized cell images.
+    Splits a warped Sudoku grid into 81 equal-sized cell readme_images.
 
     Args:
         warped_grid (np.ndarray): Top-down 450x450 Sudoku grid image.
 
     Returns:
-        list[np.ndarray]: List of 81 cell images in row-major order.
+        list[np.ndarray]: List of 81 cell readme_images in row-major order.
     """
 
     cells = []
@@ -120,13 +120,13 @@ def segment_cells(warped_grid):
 
 def extract_cells_from_image(image_path: str) -> list:
     """
-    Full pipeline to extract 81 cell images from a Sudoku puzzle image.
+    Full pipeline to extract 81 cell readme_images from a Sudoku puzzle image.
 
     Args:
         image_path (str): Path to the input image.
 
     Returns:
-        list[np.ndarray]: List of 81 segmented cell images.
+        list[np.ndarray]: List of 81 segmented cell readme_images.
     """
 
     if not os.path.exists(image_path):
