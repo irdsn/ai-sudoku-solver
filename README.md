@@ -95,6 +95,9 @@ ai-sudoku-solver/
 ├── solver/                        # Sudoku solving logic
 │   └── bckt_logic_solver.py       # Optimized backtracking algorithm with MRV & forward checking
 │
+├── src/                           # Source scripts
+│   └── aisudokusolver.py          # Main script: solves Sudoku from image input and generates report
+│
 ├── tests/                         # PyTest test suite (unit tests)
 │   ├── resources/                 # Input images for testing
 │   ├── test_ai_summarizer.py      # Tests for LLM summarizer output
@@ -119,7 +122,6 @@ ai-sudoku-solver/
 │   └── image_parser.py            # Segments and classifies cells into a 9x9 matrix
 │
 ├── .gitignore                     # Git ignore rules
-├── aisudokusolver.py              # Main script: solves Sudoku from image input and generates report
 ├── app.py                         # FastAPI server exposing the pipeline as an HTTP API
 ├── README.md                      # Project documentation
 └── requirements.txt               # Python package dependencies
@@ -129,23 +131,23 @@ ai-sudoku-solver/
 
 ## Script Overview
 
-| Script / Module                         | Description                                                                 |
-|-----------------------------------------|-----------------------------------------------------------------------------|
-| **cnn_classifier/digit_classifier.py**  | Loads the trained CNN model and classifies digit cells                      |
-| **cnn_classifier/evaluate_model.py**    | Evaluates the model on test data and saves performance metrics              |
-| **cnn_classifier/extrac_cells.py**      | Extracts 81 cell images from Sudoku board for labeling                      |
-| **cnn_classifier/train_model.py**       | Trains the CNN on labeled digits and empty cells                            |
-| **solver/bckt_logic_solver.py**         | Backtracking Sudoku solver with MRV & forward checking optimizations        |
-| **utils/ai_summarizer.py**              | Generates a natural language summary using the solving trace (via OpenAI)   |
-| **utils/config.py**                     | Defines shared paths and configuration constants                            |
-| **utils/logs_config.py**                | Logger setup and formatting                                                 |
-| **utils/print_board.py**                | Utility to pretty-print Sudoku boards to console                            |
-| **utils/reporter.py**                   | Saves solution trace and generates Markdown report                          |
-| **utils/user_input.py**                 | GUI file selector utility (used in CLI)                                     |
-| **vision/board_segmenter.py**           | Detects and isolates the Sudoku grid from an image                          |
-| **vision/image_parser.py**              | Full image-to-matrix pipeline: segmentation + digit classification          |
-| **aisudokusolver.py**                   | CLI entry point: solves Sudoku from image and generates report              |
-| **app.py**                              | FastAPI server exposing the solving pipeline as a REST API                  |
+| Script / Module                        | Description                                                                 |
+|----------------------------------------|-----------------------------------------------------------------------------|
+| **cnn_classifier/digit_classifier.py** | Loads the trained CNN model and classifies digit cells                      |
+| **cnn_classifier/evaluate_model.py**   | Evaluates the model on test data and saves performance metrics              |
+| **cnn_classifier/extrac_cells.py**     | Extracts 81 cell images from Sudoku board for labeling                      |
+| **cnn_classifier/train_model.py**      | Trains the CNN on labeled digits and empty cells                            |
+| **solver/bckt_logic_solver.py**        | Backtracking Sudoku solver with MRV & forward checking optimizations        |
+| **src/aisudokusolver.py**              | CLI entry point: solves Sudoku from image and generates report              |
+| **utils/ai_summarizer.py**             | Generates a natural language summary using the solving trace (via OpenAI)   |
+| **utils/config.py**                    | Defines shared paths and configuration constants                            |
+| **utils/logs_config.py**               | Logger setup and formatting                                                 |
+| **utils/print_board.py**               | Utility to pretty-print Sudoku boards to console                            |
+| **utils/reporter.py**                  | Saves solution trace and generates Markdown report                          |
+| **utils/user_input.py**                | GUI file selector utility (used in CLI)                                     |
+| **vision/board_segmenter.py**          | Detects and isolates the Sudoku grid from an image                          |
+| **vision/image_parser.py**             | Full image-to-matrix pipeline: segmentation + digit classification          |
+| **app.py**                             | FastAPI server exposing the solving pipeline as a REST API                  |
 
 ---
 

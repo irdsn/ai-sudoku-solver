@@ -119,7 +119,7 @@ def main():
 
         # Save only final cell assignments (not all trial steps)
         trace_path = generate_trace_filename(IMAGE_PATH)
-        os.makedirs("outputs", exist_ok=True)
+        os.makedirs("../outputs", exist_ok=True)
 
         final_trace = []
         solved_board = logic_solver.get_board()
