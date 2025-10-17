@@ -12,7 +12,7 @@ A pipeline to solve Sudoku puzzles from images, using computer vision for digit 
 ## Author
 
 Íñigo Rodríguez Sánchez  
-Data & AI Engineer
+AI & Data Engineer
 
 ---
 
