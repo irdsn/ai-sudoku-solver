@@ -317,7 +317,7 @@ Input: (50, 50, 1) grayscale image
 ├── Flatten()
 ├── Dense(128, relu)
 ├── Dropout(0.5)
-├── Dense(10, softmax)
+└── Dense(10, softmax)
 ```
 
 - **Loss Function:** Categorical Crossentropy  
@@ -369,8 +369,8 @@ The model is stored in `cnn_classifier/model/digit_model.keras` and used at runt
 
 1. Clone this repository:
 ```bash
-git clone https://github.com/YOUR_USERNAME/AISudokuSolver.git
-cd AISudokuSolver
+git clone https://github.com/YOUR_USERNAME/ai-sudoku-solver.git
+cd ai-sudoku-solver
 ```
 
 2. (Optional but recommended) Create and activate a virtual environment:
