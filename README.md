@@ -62,7 +62,7 @@ The project is designed as a robust, testable, and educational framework that co
 The project is organized into modular components to ensure clarity, maintainability, and testability. Below is the high-level directory structure with key roles explained:
 
 ```bash
-AISudokuSolver/
+ai-sudoku-solver/
 ├── cnn_classifier/                # CNN model: training, evaluation and digit prediction
 │   ├── model/                     # Saved CNN model in .keras format
 │   ├── results/                   # Evaluation metrics, confusion matrix, and logs
